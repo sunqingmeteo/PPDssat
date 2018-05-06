@@ -38,10 +38,10 @@ def create_name(_latloni, _gen_path = './'):
 
 
 # _lat_lon are list, each_lat_lon is a lat lon group, _clm_dic is dictionary
-def run_dssat_main(_lat_in, _lon_in, _begin_year, _end_year, _climate_path = './', _run_path = './', _dssat_exe= './'):
+def run_dssat_main(_lat_lon, _begin_year, _end_year, _climate_path = './', _run_path = './', _dssat_exe= './'):
 
     # Loop each point
-    for _latloni in xrange(len(_lat_in) * len(_lon_in)):
+    for _latloni in xrange(len(_lat_lon)):
         # create path name
         _name_AAAA = create_name(_latloni)
         _site_path = _run_path + _name_AAAA + '/'
@@ -49,6 +49,8 @@ def run_dssat_main(_lat_in, _lon_in, _begin_year, _end_year, _climate_path = './
         # TEST!
         #_lat_in =  32.00
         #_lon_in = 118.29
+        _lat_in = _lat_lon[_latloni][0]
+        _lon_in = _lat_lon[_latloni][1]
 
         # write .SOL
         _soil_name = write_soil(_lat_in, _lon_in, _name_AAAA, _run_path, _site_path)
@@ -110,11 +112,11 @@ _mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
 # Read _lat _lon, first col is lat, second col is lon, first row is 'lat, lon' 
 #_lat_lon = read_latlon(_run_path + '/latlon.csv')
 # input lat and lon
-_lat, _lon, _area = rice_area_mask(_mask_path)
+_lat_lon, _area = rice_area_mask(_mask_path)
 
 # run main loop
 os.chdir(_run_path)
-run_dssat_main(_lat, _lon, 1980, 2009, _climate_path, _run_path, _dssat_exe_path)
+run_dssat_main(_lat_lon, 1980, 2009, _climate_path, _run_path, _dssat_exe_path)
 
 #post process Summary.out
 #pro_summary()
