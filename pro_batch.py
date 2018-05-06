@@ -13,6 +13,7 @@ def write_batch(_site_path):
     for i in dirs:
         if os.path.splitext(i)[1] == ".RIX":
             _rix_list.append(_site_path + i)
+    _rix_list.sort()
 
     for i in xrange(len(_rix_list)):
         ls.append('%-94s    1      1      0      0      0' % _rix_list[i])
