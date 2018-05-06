@@ -47,8 +47,8 @@ def run_dssat_main(_lat_in, _lon_in, _begin_year, _end_year, _climate_path = './
         _site_path = _run_path + _name_AAAA + '/'
 
         # TEST!
-        _lat_in =  32.00
-        _lon_in = 118.29
+        #_lat_in =  32.00
+        #_lon_in = 118.29
 
         # write .SOL
         _soil_name = write_soil(_lat_in, _lon_in, _name_AAAA, _run_path, _site_path)
