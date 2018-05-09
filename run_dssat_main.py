@@ -42,6 +42,8 @@ def run_dssat_main(_lat_lon, _begin_year, _end_year, _climate_path = './', _run_
 
     # Loop each point
     for _latloni in xrange(len(_lat_lon)):
+        _latloni = 9
+        print '_lat_lon index is', _latloni
         # create path name
         _name_AAAA = create_name(_latloni)
         _site_path = _run_path + _name_AAAA + '/'
@@ -105,7 +107,7 @@ def run_dssat_main(_lat_lon, _begin_year, _end_year, _climate_path = './', _run_
 
 # LETS ROCK!!!
 _climate_path = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
-_run_path = '/nuist/u/home/yangzaiqiang/work/run_dssat/'
+_run_path = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'
 _dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm/Build/bin/'
 _mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
 
