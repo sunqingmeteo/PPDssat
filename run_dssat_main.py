@@ -42,6 +42,11 @@ def run_dssat_main(_lat_lon, _begin_year, _end_year, _climate_path = './', _run_
 
     # Loop each point
     for _latloni in xrange(len(_lat_lon)):
+        
+        #debug!
+        #_latloni = 29
+        #print _lat_lon[_latloni]
+
         # create path name
         _name_AAAA = create_name(_latloni)
         _site_path = _run_path + _name_AAAA + '/'
@@ -62,7 +67,7 @@ def run_dssat_main(_lat_lon, _begin_year, _end_year, _climate_path = './', _run_
         _rix_list = []
         # Loop year for .WTH
         for _year in xrange(_begin_year, _end_year+1):
-            print 'Processing year: ', _year
+            print 'Processing gird: ', _lat_lon[_latloni], 'year: ', _year
             _list_year = list(str(_year))
             _last_two_num = str(_list_year[2]) + str(_list_year[3])
             _site_name = _name_AAAA + _last_two_num + '01'
@@ -105,14 +110,14 @@ def run_dssat_main(_lat_lon, _begin_year, _end_year, _climate_path = './', _run_
 
 # LETS ROCK!!!
 _climate_path = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
-_run_path = '/nuist/u/home/yangzaiqiang/work/run_dssat/'
+_run_path = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'
 _dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm/Build/bin/'
 _mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
 
 # Read _lat _lon, first col is lat, second col is lon, first row is 'lat, lon' 
 #_lat_lon = read_latlon(_run_path + '/latlon.csv')
 # input lat and lon
-_lat_lon, _area = rice_area_mask(_mask_path)
+_lat_lon = rice_area_mask(_mask_path)
 
 # run main loop
 os.chdir(_run_path)
