@@ -81,7 +81,8 @@ def run_dssat(_loop_number, _obs, _run_dir='./'):
                   MDAT_R2, MDAT_rmse,   MDAT_mse,  MDAT_mae,  MDAT_variance,  MDAT_standard_deviation, \
                   yield_R2, yield_rmse, yield_mse, yield_mae, yield_variance, yield_standard_deviation\r\n'    
                   #gene(10), _ADAT(6), _MDAT(6), _yield(6)
-    with open (_run_dir + 'Optimization_Results.csv', 'w') as fi:
+    _opt_out_name = '/Opt_Results.csv'
+    with open (_run_dir + _opt_out_name, 'w') as fi:
         fi.write(csv_header)
 
     for _i_loop in xrange(_loop_number):
@@ -146,7 +147,7 @@ def run_dssat(_loop_number, _obs, _run_dir='./'):
             ls = []
             for i in xrange(len(_results)):
                 ls.append(str(_results[i]))
-            with open (_run_dir + 'Optimization_Results.csv','a') as fo:
+            with open (_run_dir + _opt_out_name, 'a') as fo:
                 fo.write(','.join(ls))
 
             print 'Finished loop: ', _i_loop+1
@@ -210,9 +211,9 @@ for i in xrange(len(_ADAT_obs_org)):
 _obs = [_ADAT_obs, _MDAT_obs, _yield_obs_org]
      
 
-_run_dir = '/Users/qingsun/GGCM/run_dssat/'
+_run_dir = '/nuist/u/home/yangzaiqiang/work/run_dssat_opt/'
 os.chdir(_run_dir)
-run_dssat(2, _obs, _run_dir)
+run_dssat(100000, _obs, _run_dir)
 opt_dssat_parameter(_run_dir)
 
 
