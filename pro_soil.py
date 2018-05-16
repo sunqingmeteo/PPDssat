@@ -44,7 +44,7 @@ def write_soil(_lat_in, _lon_in, _name_AAAA, _run_path, _site_path):
     #lat
     _find_list = list(_soil[2])
     for i in xrange(len(_soil)):
-        if '%s  %s' % (str(_lat[_latlon_index]), str(_lon[_latlon_index])) in _soil[i]:
+        if '%s  %s' % (str(_lat[_latlon_index]), str(_lon[_latlon_index])) or '%s   %s' % (str(_lat[_latlon_index]), str(_lon[_latlon_index])) in _soil[i]:
             _find_str = _soil[i]
 
     _site_soil_index = _soil.index(_find_str)

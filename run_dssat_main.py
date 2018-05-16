@@ -41,10 +41,11 @@ def create_name(_latloni, _gen_path = './'):
 def run_dssat_main(_lat_lon, _begin_year, _end_year, _climate_path = './', _run_path = './', _dssat_exe= './'):
 
     # Loop each point
-    for _latloni in xrange(len(_lat_lon)):
+    #for _latloni in xrange(len(_lat_lon)):
+    for _latloni in xrange(560, 976):
         
         #debug!
-        #_latloni = 29
+        #_latloni = 560
         #print _lat_lon[_latloni]
 
         # create path name
