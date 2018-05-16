@@ -18,4 +18,3 @@ def rice_area_mask(_file_path = './'):
     return _lat_lon
 
 #_lat_lon, _area = rice_area_mask('/Users/qingsun/GGCM/mask_rice/')
-

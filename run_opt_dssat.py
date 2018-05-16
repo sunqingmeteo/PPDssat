@@ -5,8 +5,10 @@ import subprocess
 import os
 import time
 from compiler.ast import flatten
+import math
 
-def RMSE(target, prediction, rmse, mse, mae, _variance, _standard_deviation):
+def Corr_index(target, prediction):
+    # input is list = [numbers], output is tuples
     error = []  
     for i in range(len(target)):  
         error.append(target[i] - prediction[i]) 
@@ -24,7 +26,24 @@ def RMSE(target, prediction, rmse, mse, mae, _variance, _standard_deviation):
         targetDeviation.append((val - targetMean) * (val - targetMean))
     _variance = round(sum(targetDeviation) / len(targetDeviation), 2)
     _standard_deviation = round(np.sqrt(sum(targetDeviation) / len(targetDeviation)), 2)
-    return rmse, mse, mae, _variance, _standard_deviation
+
+    # R2 calculation
+    xBar = np.mean(target)
+    yBar = np.mean(prediction)
+    SSR = 0
+    varX = 0
+    varY = 0
+    for i in range(0 , len(target)):
+        diffXXBar = target[i] - xBar
+        diffYYBar = prediction[i] - yBar
+        SSR += (diffXXBar * diffYYBar)
+        varX +=  diffXXBar ** 2
+        varY += diffYYBar ** 2
+    
+    SST = math.sqrt(varX * varY)
+    r2 = (SSR / SST) ** 2
+
+    return r2, rmse, mse, mae, _variance, _standard_deviation
 
 def gen_random():
     # Step 1: generate random parameters of rice gene type
@@ -57,11 +76,13 @@ def gen_random():
 def run_dssat(_loop_number, _obs, _run_dir='./'):
 
     # create output file: Optimization_Results.csv
-    csv_header = ' P1, P2R, P5, P2O, G1, G2, G3, G4, PHINT, G5, \
-                   ADAT_rmse,   ADAT_mse,  ADAT_mae,  ADAT_variance,  ADAT_standard_deviation, \
-                   MDAT_rmse,   MDAT_mse,  MDAT_mae,  MDAT_variance,  MDAT_standard_deviation, \
-                   yield_rmse, yield_mse, yield_mae, yield_variance, yield_standard_deviation\r\n'    #gene(10), _ADAT(5), _MDAT(5), _yield(5)
-    with open (_run_dir + 'Optimization_Results.csv', 'w') as fi:
+    csv_header = 'P1, P2R, P5, P2O, G1, G2, G3, G4, PHINT, G5, \
+                  ADAT_R2, ADAT_rmse,   ADAT_mse,  ADAT_mae,  ADAT_variance,  ADAT_standard_deviation, \
+                  MDAT_R2, MDAT_rmse,   MDAT_mse,  MDAT_mae,  MDAT_variance,  MDAT_standard_deviation, \
+                  yield_R2, yield_rmse, yield_mse, yield_mae, yield_variance, yield_standard_deviation\r\n'    
+                  #gene(10), _ADAT(6), _MDAT(6), _yield(6)
+    _opt_out_name = '/Opt_Results.csv'
+    with open (_run_dir + _opt_out_name, 'w') as fi:
         fi.write(csv_header)
 
     for _i_loop in xrange(_loop_number):
@@ -89,7 +110,7 @@ def run_dssat(_loop_number, _obs, _run_dir='./'):
         if os.path.exists(_run_dir + '/Summary.OUT'):
             with open (_run_dir + '/Summary.OUT', 'r') as f:
                 summary = f.readlines()
-            print type(summary),len(summary)
+            #print type(summary),len(summary)
             if len(_obs[0]) == 13:
                 if 'IRJD1204' in summary[7]:
                     del summary[7]           
@@ -100,25 +121,18 @@ def run_dssat(_loop_number, _obs, _run_dir='./'):
             _yield_sim = []
 
             for i in xrange(len(summary)-4):
-                _ADAT_sim.append(summary[i+4][126:133])
-                _MDAT_sim.append(summary[i+4][134:141])
-                _yield_sim.append(summary[i+4][167:171])
+                _ADAT_sim.append(int(summary[i+4][130:133]))
+                _MDAT_sim.append(int(summary[i+4][138:141]))
+                _yield_sim.append(int(summary[i+4][167:171]))
 
             _sim = [_ADAT_sim,_MDAT_sim,_yield_sim]
-            for i in xrange(len(_sim)):
-                _sim[i] = map(float, _sim[i])
+
 
             # Step 4: Cal minimum loss of stage day and yield， input is list[float, float], input-output must be same
             _rmse = []
-            mse = []
-            mae = []
-            _variance = []
-            _standard_deviation = []
-            n = len(_sim)
-            m = len(_sim[0])
-            for _n in xrange(n):
+            for _n in xrange(len(_sim)):
                 if len(_sim[_n]) == len(_obs[_n]):
-                    _rmse.append(RMSE( _sim[_n], _obs[_n], _rmse, mse, mae, _variance, _standard_deviation))
+                    _rmse.append(Corr_index(_sim[_n], _obs[_n]))
                 else:
                     print 'Simulation Data array is not the same as Observation!'
                     os.exit()
@@ -126,26 +140,27 @@ def run_dssat(_loop_number, _obs, _run_dir='./'):
             # Step 5: store loss and _gene_list in files.
             _results = []
             _result_rmse = _rmse
-            _results.append(_gene_list + _result_rmse)
+            _results.append(_gene_list + _result_rmse + _ADAT_sim + _MDAT_sim + _yield_sim)
             _results = flatten(_results)
             _results.append('\r\n')
 
             ls = []
             for i in xrange(len(_results)):
                 ls.append(str(_results[i]))
-            with open (_run_dir + 'Optimization_Results.csv','a') as fo:
+            with open (_run_dir + _opt_out_name, 'a') as fo:
                 fo.write(','.join(ls))
 
             print 'Finished loop: ', _i_loop+1
 
 def opt_dssat_parameter(_run_dir='./'):
+    # Read opt results
     _opt_file = np.loadtxt(_run_dir + '/Optimization_Results.csv', dtype=np.str, delimiter=",", skiprows=1)
-    _opt_index = _opt_file[:,20].tolist().index(min(_opt_file[:,20]))
+
+    _opt_index = _opt_file[:,22].tolist().index(min(_opt_file[:,22]))
     _opt_aaa = _opt_file[_opt_index].tolist()
     while '' in _opt_aaa:
         _opt_aaa.remove('')
     _opt_out = map(float, _opt_aaa)
-    #print _opt_out, type(_opt_out)
     
     ls = []
     ls.append('*RICE GENOTYPE COEFFICIENTS: RICER047 MODEL')
@@ -154,11 +169,15 @@ def opt_dssat_parameter(_run_dir='./'):
     ls.append('!                                        1     2     3     4     5     6     7     8     9    10')
     ls.append('IB0152 JDZ RICE             . IB0001 %5.1f %5.1f %5.1f  %4.1f  %4.1f .0%3d  %4.2f  %4.2f  %4.1f   %3.1f' \
                         % (_opt_out[0], _opt_out[1],_opt_out[2],_opt_out[3],_opt_out[4],_opt_out[5],_opt_out[6],_opt_out[7],_opt_out[8],_opt_out[9]) )
+    ls.append(' ')
+    ls.append(','.join(_opt_aaa))
 
     with open(_run_dir + '/Opt_RICER047.CUL', 'w') as fo:
         fo.write('\r\n'.join(ls))
     print 'Congratulations! Optimization Results: Opt_RICER047.CUL was generated ^_^'
 
+
+###########################################################################################################
 
 # Let's Run Optimization!
 # Obs data
@@ -172,30 +191,30 @@ _MDAT_obs  = [2012211, 2012211, 2012211,
 _yield_obs = [ 8793,  6554,  5676,  
                7246,  6471,  6075,  5250,
                8119,  7244,  5742,  5344,  5089,  4100]
-'''   
-_ADAT_obs  = [2012185, 2012185, 2012185, 2012185,
-              2013187, 2013187, 2013187, 2013187,
-              2013186, 2013186, 2013186, 2013186, 2013186, 2013186]
-_MDAT_obs  = [2012211, 2012211, 2012211, 2012211,
-              2013211, 2013211, 2013211, 2013211,
-              2013213, 2013213, 2013213, 2013213, 2013213, 2013213]
-_yield_obs = [ 8793,  6554,  5676,  2967,
-               7246,  6471,  6075,  5250,
-               8119,  7244,  5742,  5344,  5089,  4100]
-_obs = [_ADAT_obs, _MDAT_obs, _yield_obs]       
+'''
 
+_ADAT_obs_org  = [2012185, 2012185, 2012185, 2012185, \
+                  2013187, 2013187, 2013187, 2013187, \
+                  2013186, 2013186, 2013186, 2013186, 2013186, 2013186]
+_MDAT_obs_org  = [2012211, 2012211, 2012211, 2012211, \
+                  2013211, 2013211, 2013211, 2013211, \
+                  2013213, 2013213, 2013213, 2013213, 2013213, 2013213]
+_yield_obs_org = [ 8793,  6554,  5676,  2967, \
+                   7246,  6471,  6075,  5250, \
+                   8119,  7244,  5742,  5344,  5089,  4100]
+_ADAT_obs = []
+_MDAT_obs = []
+for i in xrange(len(_ADAT_obs_org)):
+    _ADAT_obs.append(int(str(_ADAT_obs_org[i])[-3:]))
+    _MDAT_obs.append(int(str(_MDAT_obs_org[i])[-3:]))
 
-_run_dir = '/Users/qingsun/GGCM/run_dssat/'
+_obs = [_ADAT_obs, _MDAT_obs, _yield_obs_org]
+     
+
+_run_dir = '/nuist/u/home/yangzaiqiang/work/run_dssat_opt/'
 os.chdir(_run_dir)
-run_dssat(5, _obs, _run_dir)
+run_dssat(100000, _obs, _run_dir)
 opt_dssat_parameter(_run_dir)
 
-# Run DSSAT
-#if os.path.exists('./Optimization_Results.csv'):
-#   _file_exsit = raw_input("Already have Optimization_Results.csv! Want to delete Optimization_Results.csv? y/n: ")
-#   if _file_exsit == 'y' or _file_exsit == 'Y':
-#    os.remove('./Optimization_Results.csv')
-#   else:
-#       os.exit()
 
 
