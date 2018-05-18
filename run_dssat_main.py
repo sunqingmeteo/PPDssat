@@ -42,10 +42,10 @@ def run_dssat_main(_lat_lon, _begin_year, _end_year, _climate_path = './', _run_
 
     # Loop each point
     #for _latloni in xrange(len(_lat_lon)):
-    for _latloni in xrange(600, 976):
+    for _latloni in xrange(601, 976):
         
         #debug!
-        #_latloni = 600
+        #_latloni = 601
         #print _lat_lon[_latloni]
 
         # create path name

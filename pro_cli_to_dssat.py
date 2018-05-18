@@ -184,8 +184,17 @@ def write_clm(_lat_in, _lon_in, _year, _clm_dic, _site_name, _site_path):
     #    _datelist[i, 4] = 25.0 
 
     # write to ascii file
-
     for i in xrange(len(_clm_dic['DATE'])):
+        if  _clm_dic['RAIN'][i] is None:
+            _clm_dic['RAIN'][i] = _clm_dic['RAIN'][i-1]
+        if  _clm_dic['SRAD'][i] is None:
+            _clm_dic['SRAD'][i] = _clm_dic['SRAD'][i-1]
+        if  _clm_dic['TMAX'][i] is None:
+            _clm_dic['TMAX'][i] = _clm_dic['TMAX'][i-1]
+        if  _clm_dic['TMIN'][i] is None:
+            _clm_dic['TMIN'][i] = _clm_dic['TMIN'][i-1]
+        if  _clm_dic['WIND'][i] is None:
+            _clm_dic['WIND'][i] = _clm_dic['WIND'][i-1]
         ls.append('%s%6.1f%6.1f%6.1f%6.1f%6.1f' % (_clm_dic['DATE'][i], _clm_dic['RAIN'][i], _clm_dic['SRAD'][i], _clm_dic['TMAX'][i], _clm_dic['TMIN'][i], _clm_dic['WIND'][i]))
 
     fname = _site_path + _site_name + '.WTH'
