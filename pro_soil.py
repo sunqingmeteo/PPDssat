@@ -3,7 +3,7 @@ import os, subprocess
 import numpy as np
 
 def write_soil(_lat_in, _lon_in, _name_AAAA, _run_path, _site_path):
-    with open ('./CHINA_SoilGrids.SOL') as fi:
+    with open (_run_path + './CHINA_SoilGrids.SOL') as fi:
         _soil = fi.readlines()
  
     # find all line contain "-99 CN"
@@ -30,27 +30,24 @@ def write_soil(_lat_in, _lon_in, _name_AAAA, _run_path, _site_path):
         _lon.append(alat[3])
 
     # find nearest lat and lon, note: numpy array did not have 'index' command, must convert to list
-    _lat_abs = []
-    _lon_abs = []
-    for i in xrange(len(_lat)):
-        _lat_abs.append(abs(float(_lat[i]) - _lat_in))
-        _lon_abs.append(abs(float(_lon[i]) - _lon_in))
     _sum_lat_lon = []
-    for i in xrange(len(_lat_abs)):
-        _sum_lat_lon.append(_lon_abs[i] + _lat_abs[i])
+    for i in xrange(len(_lat)):
+        _sum_lat_lon.append(abs(float(_lat[i]) - _lat_in) + abs(float(_lon[i]) - _lon_in))
     _latlon_index = _sum_lat_lon.index(min(_sum_lat_lon))
-    #print 'The nearest lat and lon index:', _latlon_index, 'lat:', _lat[_latlon_index], 'lon:', _lon[_latlon_index]
+    print 'The nearest lat and lon index:', _latlon_index, 'lat:', _lat[_latlon_index], 'lon:', _lon[_latlon_index]
     
     #lat
-    _find_list = list(_soil[2])
+    if len(str(int(float(_lon[_latlon_index])))) == 2:
+        _lat_lon_soil = "%s   %s" % (str(_lat[_latlon_index]), str(_lon[_latlon_index]))
+    if len(str(int(float(_lon[_latlon_index])))) == 3:
+        _lat_lon_soil = "%s  %s" % (str(_lat[_latlon_index]), str(_lon[_latlon_index]))
+    
     for i in xrange(len(_soil)):
-        if '%s  %s' % (str(_lat[_latlon_index]), str(_lon[_latlon_index])) or '%s   %s' % (str(_lat[_latlon_index]), str(_lon[_latlon_index])) in _soil[i]:
-            _find_str = _soil[i]
-
-    _site_soil_index = _soil.index(_find_str)
-    _site_soil = _soil[(_site_soil_index - 2):(_site_soil_index + 9)]
-
+        if  _lat_lon_soil in _soil[i]:
+            _find_str = i
+    _site_soil = _soil[(_find_str - 2):(_find_str + 9)]
     _site_soil_name = _site_soil[0].split(' ')[0]
+    
     subprocess.call(' ln -sf %sCHINA_SoilGrids.SOL %s/CN.SOL' % (_run_path, _site_path), shell = True)
     print 'Find soil name: %s and linked to %s' % (_site_soil_name[1:], _site_path)
 
