@@ -132,6 +132,10 @@ def act_temp(_clm_dic, _year, _site_path = './'):
     for i in xrange(len(_tmean)):
         if _tmean[i] < 10.0:
             _index_list.append(i)
+    if isLeapYear(_year):
+        _index_list.append(366)
+    else:
+        _index_list.append(365)
 
     # cal every act acc temp and find the max one, the max one which is act acc temp
     _act_temp_list = []
