@@ -129,6 +129,7 @@ def act_temp(_clm_dic, _year, _site_path = './'):
     
     # find index where tmean is lower than 10C
     _index_list = []
+    _index_list.append(0)
     for i in xrange(len(_tmean)):
         if _tmean[i] < 10.0:
             _index_list.append(i)
