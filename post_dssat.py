@@ -1,6 +1,6 @@
 # coding=utf-8
 import os
-import time
+import datetime
 import numpy as np 
 from netCDF4 import Dataset
 
@@ -44,7 +44,8 @@ def read_summary(_lat_lon, _dirs):
 
     # Loop each dirs, each point
     for dirs_i in xrange(len(_dirs)):
-
+        
+        print 'Reading Summary.OUT from directory %s' % _dirs[dirs_i]
         # read summary.out
         with open(_dirs[dirs_i] + '/Summary.OUT', 'r') as fi:
             summary = fi.readlines()
@@ -62,12 +63,10 @@ def read_summary(_lat_lon, _dirs):
         dssat_out_nc[station_name]['LON'] = _lat_lon[dirs_i][1]
 
         for i in xrange(len(summary)-4):
-            # year = summary[i+4][102:106]
-            if summary[i+4][102:106] == summary[i+4][126:130]:
-                # Start from SDAT, No.12
-                _name_gird_dic[summary[i+4][102:106]] = summary[i+4].split()[12:]                                              
+            # Start from SDAT, No.12, [102:106]]=year
+            _name_gird_dic[summary[i+4][102:106]] = summary[i+4].split()[12:]                                              
             # in some situation, rice will harvest next year even set last harvest date
-            else:
+            if summary[i+4][102:106] != summary[i+4][126:130]:
                 _name_gird_dic[summary[i+4][102:106]][15] = 0   # ADAT
                 _name_gird_dic[summary[i+4][102:106]][16] = 0   # MDAT
                 _name_gird_dic[summary[i+4][102:106]][20] = 0   # HWAM
@@ -124,25 +123,23 @@ def write_nc(dssat_out_nc, _mask_path = './', _file_path='./', output_file_name 
     # NC file input transfer, from station-var-year data to var-year-region(lat, lon)
     _input_nc = {}
     _vars = sorted(dssat_out_nc['AABB'].keys())
-    print _vars
 
     for _vars_num in xrange(len(_vars)):
         
         if _vars[_vars_num] not in ['LAT', 'LON', 'YEAR']: 
-            print _vars[_vars_num]
-            f_nc.createVariable(_vars[_vars_num], np.float32, dimensions=('time', 'lat', 'lon',), fill_value=1.0e20)
+            
+            print 'Transform variable: %s' % _vars[_vars_num]
+            
             # Create array with 1.0e20
+            f_nc.createVariable(_vars[_vars_num], np.float32, dimensions=('time', 'lat', 'lon',), fill_value=1.0e20)
             _empty_array = np.empty((len(dssat_out_nc['AABB']['YEAR']), _mask_in.shape[0],_mask_in.shape[1]), dtype=np.float32)
             _empty_array.fill(1.0e20)
-            #print _empty_array.shape
 
             for stations in sorted(dssat_out_nc.keys()):
-                #print stations
 
                 # Find station lat and lon index to find the position of input_nc array 
                 _lat_index = _lat_mask.tolist().index(dssat_out_nc[stations]['LAT'])
                 _lon_index = _lon_mask.tolist().index(dssat_out_nc[stations]['LON']) 
-                #print _lat_index,_lon_index
 
                 #print sorted(dssat_out_nc[stations][_vars[_vars_num]])
                 for _year_num in sorted(dssat_out_nc[stations][_vars[_vars_num]]):
@@ -166,8 +163,7 @@ def write_nc(dssat_out_nc, _mask_path = './', _file_path='./', output_file_name 
         f_nc.variables[_vars_out][:] = _input_nc[_vars_out]
 
     # Global Attributes
-    _time = time.strftime('%Y.%m.%d',time.localtime(time.time()))
-    f_nc.description = 'Qing Sun, NUIST, created in %s' % _time
+    f_nc.description = 'Qing Sun, NUIST, created in %s' % datetime.datetime.now()
     f_nc.source = 'AgMIP climate datasets, PPDSSAT results, https://github.com/sunqingmeteo/PPDssat'
 
     # Variable Attributes
@@ -185,6 +181,8 @@ def write_nc(dssat_out_nc, _mask_path = './', _file_path='./', output_file_name 
 
 mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
 run_path  = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'
+
+dirs = read_dirs(run_path)
 
 #mask_path = '/Users/qingsun/GGCM/mask_rice/'
 #run_path = '/Users/qingsun/GGCM/run_dssat/'
