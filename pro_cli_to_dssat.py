@@ -21,8 +21,8 @@ def clm_list(_year, _climate_path = './'):
     _clm_list = []
     for _root,_dirs,_files in os.walk(_climate_path):
         _clm_list.append(_files)
-    _clm_list.sort()
     _clm_list = _clm_list[0]
+    _clm_list.sort()
 
     # Find file names of selected year, 1951-2099
     _clm_year_list = []
