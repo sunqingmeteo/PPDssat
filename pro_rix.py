@@ -56,7 +56,7 @@ def write_rix(_year, plant_day, gene_region, _site_name, _soil_name, _site_path,
     _in_dssat[22]  = ' 1 %s0001 %s   -99     0 DR000     0     0 00000 L      200  %s UNKNOWN\r\n' % (_site_name[0:4], _site_name, _soil_name)
     _in_dssat[28]  = ' 1 ' + str(_year)[-2:] + '001   -99   -99   -99  -99\r\n'
     _in_dssat[34]  = ' 1    RI ' + str(_year)[-2:] + '089   300   -99     1     1   -99     0     0     0   100    15 UNKNOWN\r\n'
-    _in_dssat[49]  = ' 1 %s%3d %s099    75    25     T     H    26     0     5     0    25    23     3     0                        test1\r\n' % (str(_year)[-2:], plant_day, str(_year)[-2:])
+    _in_dssat[49]  = ' 1 %s%03d %s099    75    25     T     H    26     0     5     0    25    23     3     0                        test1\r\n' % (str(_year)[-2:], plant_day, str(_year)[-2:])
     _in_dssat[55]  = ' 1 ' + str(_year)[-2:] + '171 IR003    40\r\n'
     _in_dssat[56]  = ' 1 ' + str(_year)[-2:] + '185 IR003    60\r\n'
     _in_dssat[57]  = ' 1 ' + str(_year)[-2:] + '199 IR003    20\r\n'

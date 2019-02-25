@@ -39,7 +39,7 @@ def run_dssat_main(_lat_lon, _gene_region, plantday, co2,
 
     # Loop each point
     #for _latloni in xrange(len(_lat_lon)):
-    for _latloni in xrange(309,len(_lat_lon)):
+    for _latloni in xrange(1585,len(_lat_lon)):
         # _lat_lon are list, _lat_lon [lat,lon], _clm_dic is dictionary
         
         # Debug
