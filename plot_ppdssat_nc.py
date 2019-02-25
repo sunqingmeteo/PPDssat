@@ -57,17 +57,15 @@ lats = fh.variables['lat'][:]
 time = fh.variables['time'][:].astype('int')
 print time
 
-
 plot_var = 'HWAM'
 _var_out = fh.variables[plot_var][:,:,:]
 print _var_out.shape
 fh.close()
 
 
-
 for i in xrange(_var_out.shape[0]):
     fig_name = 'PPDssat_%s_%s' % (plot_var,time[i])
-    print '%s' % fig_name
+    print 'Plotting %s' % fig_name
     plot_PPDssat(lons, lats, _var_out[i,:,:], fig_name, 
                  colors='jet', unit='Yield (kg/ha)',
                  colorbar_label = np.linspace(0, 15000, 11, dtype = int))

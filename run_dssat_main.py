@@ -4,6 +4,7 @@
 import os, sys, re, subprocess
 import numpy as np
 
+
 from pro_cli_to_dssat import clm_list, read_clm, write_clm, act_temp
 from pro_soil import write_soil
 from pro_rix import write_rix
@@ -44,6 +45,9 @@ def run_dssat_main(_lat_lon, _gene_region, plantday, co2,
         
         # Debug
         #_latloni = 1000
+
+        # Enter run path
+        os.chdir(_run_path)
 
         # create path name
         _name_AAAA = create_name(_latloni)
@@ -125,24 +129,26 @@ if __name__ == '__main__':
     _mask_path      = '/Users/qingsun/GGCM/mask_rice/'
     _co2_path       = '/Users/qingsun/GGCM/mask_rice/'
 
+    # D-fixed 380, can be set in file dssat/Data/StandardData/CO2047.WDA
+    # M-Monthly values, observations from Mauna Loa, Hawii 
+    # W-read from weather file
+    #CO2 = ['D','W','M'] # NEED to modify CO2 in .RIX 
+    CO2_RCP = ['RCP2.6', 'RCP4.5', 'RCP6.0', 'RCP8.5']
+    CO2_RCP = 'RCP2.6'
+    
+    run_begin_year = 2000
+    run_end_year   = 2000
+
+    ################## SETTING ABOVE ##########################
+
 
     # Read mask for lat and lon
     # Mask should be change flexible
     _lat_lon, _gene_region, plant1, plant2, plant3 = rice_gene_mask(_mask_path)
 
-
-    # D-fixed 380, can be set in file dssat/Data/StandardData/CO2047.WDA
-    # M-Monthly values, observations from Mauna Loa, Hawii 
-    # W-read from weather file
-    CO2 = ['D','W','M'] # NEED to modify CO2 in .RIX 
-    CO2_RCP = ['RCP2.6', 'RCP4.5', 'RCP6.0', 'RCP8.5']
-    CO2_RCP = 'RCP2.6'
-    
-
     # run main loop
-    os.chdir(_run_path)
     run_dssat_main(_lat_lon = _lat_lon, _gene_region = _gene_region, plantday = plant1, co2=CO2_RCP,
-                   _begin_year = 2000, _end_year = 2002, 
+                   _begin_year = run_begin_year, _end_year = run_end_year, 
                    _climate_path =_climate_path, _run_path = _run_path, 
                    _dssat_exe = _dssat_exe_path, _mask_path=_mask_path, _co2_path=_co2_path)
 
