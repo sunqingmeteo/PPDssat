@@ -1,4 +1,6 @@
 #coding=utf-8
+# Only for some specific sunlight hours
+# No need for run PPDssat
 import os
 
 def modify_srad(_site_path='./'):
@@ -20,13 +22,8 @@ def modify_srad(_site_path='./'):
         for j in xrange(len(_content[6:])):
             srad = _content[j+6].split()[2]
             if srad == '0.0':
-                srad = '1.0'
+                srad = '5.0'
             
+if __name__ == '__main__':
 
-
-
-
-
-
-
-modify_srad('/Users/qingsun/GGCM/run_dssat/')
+    modify_srad('/Users/qingsun/GGCM/run_dssat/')

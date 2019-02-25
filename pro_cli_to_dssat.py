@@ -1,14 +1,12 @@
 # coding=utf-8
+
+import os, time, re, calendar
 from netCDF4 import Dataset
 import numpy as np
-import time
-import calendar
 import pandas as pd
 from datetime import datetime
-import os
-import re
 from date_cal import daysBetweenDates, isLeapYear
-
+from pro_co2 import read_co2
 
 def datelist(beginDate, endDate):
 # beginDate, endDate is '20160601', must add '', is string
@@ -18,10 +16,12 @@ def datelist(beginDate, endDate):
 
 
 def clm_list(_year, _climate_path = './'):
+
     _clm_list = []
-    for _root,_dirs,_files in os.walk(_climate_path):
-        _clm_list.append(_files)
-    _clm_list = _clm_list[0]
+    for _root,_dirs,_files in os.walk(_climate_path, topdown=False):
+        for name in _files:
+            path = os.path.join(_root, name)
+            _clm_list.append(path)
     _clm_list.sort()
 
     # Find file names of selected year, 1951-2099
@@ -37,9 +37,8 @@ def clm_list(_year, _climate_path = './'):
     _clm_fine_year_list = []
     for _clm_year_group in xrange(len(_clm_year_list)):
         if _year in xrange(int(_clm_year_list[_clm_year_group][0]), int(_clm_year_list[_clm_year_group][1]) +1):
-            #print _clm_year_list[_clm_year_group][0], _clm_year_list[_clm_year_group][1]
-            #print _clm_year_group
-            _clm_fine_year_list.append(_climate_path + _clm_list[_clm_year_group])
+            _clm_fine_year_list.append(_clm_list[_clm_year_group])
+
     return _clm_fine_year_list
 
 
@@ -71,7 +70,7 @@ def read_clm(_lat_in, _lon_in, _year, _wea_list, _climate_path='./'):
         _time = f.variables['time'][:]
         _time = _time.astype(np.int64)
         _nctime_bg_index = int(_time.tolist().index(_nctime_bg))
-        _nctime_ed_index = int(_time.tolist().index(_nctime_ed))
+        _nctime_ed_index = int(_time.tolist().index(_nctime_ed-1))
 
         # find nearest lat and lon, note: numpy array did not have 'index' command, must convert to list
         _lat = f.variables['lat'][:]
@@ -86,7 +85,7 @@ def read_clm(_lat_in, _lon_in, _year, _wea_list, _climate_path='./'):
             if i in _wea_list[_wea]:
                 _var = i
         #print _wea_list[_wea], _var, _nctime_bg_index, _nctime_ed_index
-        _clm_var = f.variables[_var][_nctime_bg_index:_nctime_ed_index, _latindex, _lonindex]
+        _clm_var = f.variables[_var][_nctime_bg_index:_nctime_ed_index+1, _latindex, _lonindex]
         _clm_var = _clm_var.astype('float64')
 
         # Climate data UNIT transfer
@@ -115,9 +114,56 @@ def read_clm(_lat_in, _lon_in, _year, _wea_list, _climate_path='./'):
             print "Attention! climate data days number not the same as date number"
             os.exit()
         f.close()
-    print 'Finished reading climate data in %s' % _climate_path
+    #print 'Finished reading climate data in %s' % _climate_path
 
     return _clm_dic
+
+
+def write_clm(_lat_in, _lon_in, _year, co2, _clm_dic, _site_name, _site_path, _co2_path):
+    # generally weather data contain 
+    # hur, hurtmax, pr,     rsds, tas, tasmax, tasmin, wind
+    #               RAIN,   SRAD,      TMAX,   TMIN,   WIND
+    co2_value = read_co2(_year, _co2_path, co2)
+    ls = []
+    ls.append('*WEATHER : %s, CHINA, QING' % _site_name)
+    ls.append(' ')
+    ls.append('@ INSI      LAT     LONG  ELEV   TAV   AMP REFHT WNDHT    CO2')
+    ls.append('  %s   %6.3f  %7.3f    9   16.5  10.3  2.00  2.00 %6.2f' % (_site_name[0:4], _lat_in, _lon_in, co2_value) )
+    ls.append(' ')
+    
+    _sorted_var= '@'   
+    for i in sorted(_clm_dic.keys()):
+        _sorted_var += '%s  ' % i
+    ls.append(_sorted_var) 
+    
+    # Create JDZ 2013 CK Tmax 30 C, Tmin 25 C from 13180 to 13220. 
+    # Generally, JDZ 13198 was grain filling begin Maturity date: 13211
+    #_modify_clim_index_bg = _datelist[:, 0].tolist().index(13193)
+    #_modify_clim_index_ed = _datelist[:, 0].tolist().index(13211)
+    ##print 'Now generate CK climate data. index from: ', _modify_clim_index_bg, 'to', _modify_clim_index_ed
+    #for i in xrange(_modify_clim_index_bg, _modify_clim_index_ed):
+    #    _datelist[i, 3] = 30.0
+    #    _datelist[i, 4] = 25.0 
+
+    # write to ascii file
+    for i in xrange(len(_clm_dic['DATE'])):
+        if  _clm_dic['RAIN'][i] is None:
+            _clm_dic['RAIN'][i] = _clm_dic['RAIN'][i-1]
+        if  _clm_dic['SRAD'][i] is None:
+            _clm_dic['SRAD'][i] = _clm_dic['SRAD'][i-1]
+        if  _clm_dic['TMAX'][i] is None:
+            _clm_dic['TMAX'][i] = _clm_dic['TMAX'][i-1]
+        if  _clm_dic['TMIN'][i] is None:
+            _clm_dic['TMIN'][i] = _clm_dic['TMIN'][i-1]
+        if  _clm_dic['WIND'][i] is None:
+            _clm_dic['WIND'][i] = _clm_dic['WIND'][i-1]
+        ls.append('%s%6.1f%6.1f%6.1f%6.1f%6.1f' % (_clm_dic['DATE'][i], _clm_dic['RAIN'][i], _clm_dic['SRAD'][i], _clm_dic['TMAX'][i], _clm_dic['TMIN'][i], _clm_dic['WIND'][i]))
+
+    fname = _site_path + _site_name + '.WTH'
+    with open(fname,'w') as fo:
+        fo.write('\r\n'.join(ls))
+
+    print 'Finished writing %s%s.WTH' % (_site_path, _site_name)
 
 
 # active accumulated temperature,
@@ -156,54 +202,6 @@ def act_temp(_clm_dic, _year, _site_path = './'):
         fo.write('%d, %s, %s, %s \r\n' % (_year, act_acc_temp, act_acc_temp_begin, act_acc_temp_end))
 
     return act_acc_temp, act_acc_temp_begin, act_acc_temp_end
-
-
-
-def write_clm(_lat_in, _lon_in, _year, _clm_dic, _site_name, _site_path):
-    # generally weather data contain 
-    # hur, hurtmax, pr,     rsds, tas, tasmax, tasmin, wind
-    #               RAIN,   SRAD,      TMAX,   TMIN,   WIND
-    ls = []
-    ls.append('*WEATHER : %s, CHINA, QING' % _site_name)
-    ls.append(' ')
-    ls.append('@ INSI      LAT     LONG  ELEV   TAV   AMP REFHT WNDHT')
-    ls.append('  %s   %6.3f  %7.3f    9   16.5  10.3  2.00  2.00' % (_site_name[0:4], _lat_in, _lon_in))
-    ls.append(' ')
-    
-    _sorted_var= '@'   
-    for i in sorted(_clm_dic.keys()):
-        _sorted_var += '%s  ' % i
-    ls.append(_sorted_var) 
-    
-    # Create JDZ 2013 CK Tmax 30 C, Tmin 25 C from 13180 to 13220. 
-    # Generally, JDZ 13198 was grain filling begin Maturity date: 13211
-    #_modify_clim_index_bg = _datelist[:, 0].tolist().index(13193)
-    #_modify_clim_index_ed = _datelist[:, 0].tolist().index(13211)
-    ##print 'Now generate CK climate data. index from: ', _modify_clim_index_bg, 'to', _modify_clim_index_ed
-    #for i in xrange(_modify_clim_index_bg, _modify_clim_index_ed):
-    #    _datelist[i, 3] = 30.0
-    #    _datelist[i, 4] = 25.0 
-
-    # write to ascii file
-    for i in xrange(len(_clm_dic['DATE'])):
-        if  _clm_dic['RAIN'][i] is None:
-            _clm_dic['RAIN'][i] = _clm_dic['RAIN'][i-1]
-        if  _clm_dic['SRAD'][i] is None:
-            _clm_dic['SRAD'][i] = _clm_dic['SRAD'][i-1]
-        if  _clm_dic['TMAX'][i] is None:
-            _clm_dic['TMAX'][i] = _clm_dic['TMAX'][i-1]
-        if  _clm_dic['TMIN'][i] is None:
-            _clm_dic['TMIN'][i] = _clm_dic['TMIN'][i-1]
-        if  _clm_dic['WIND'][i] is None:
-            _clm_dic['WIND'][i] = _clm_dic['WIND'][i-1]
-        ls.append('%s%6.1f%6.1f%6.1f%6.1f%6.1f' % (_clm_dic['DATE'][i], _clm_dic['RAIN'][i], _clm_dic['SRAD'][i], _clm_dic['TMAX'][i], _clm_dic['TMIN'][i], _clm_dic['WIND'][i]))
-
-    fname = _site_path + _site_name + '.WTH'
-    with open(fname,'w') as fo:
-        fo.write('\r\n'.join(ls))
-
-    print 'Finished write %s.WTH in %s' % (_site_name, _site_path)
-
 
 '''
 # JDZ lat lon

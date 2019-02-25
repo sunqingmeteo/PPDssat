@@ -1,22 +1,17 @@
 # coding=utf-8
-import os, sys, subprocess
+# QING SUN/NUIST
+# Main code for PPDssat
+import os, sys, re, subprocess
 import numpy as np
-import re
+
 from pro_cli_to_dssat import clm_list, read_clm, write_clm, act_temp
 from pro_soil import write_soil
 from pro_rix import write_rix
 from pro_batch import write_batch
-from pro_mask import rice_area_mask
+from pro_mask import rice_area_mask, rice_gene_mask
 
 
-def read_latlon(_file = './latlon.csv'):
-    _lat_lon = np.loadtxt(_file, dtype=np.str, delimiter=",")
-    _lat_lon = _lat_lon[1:]
-    #_lat = _lat_lon[1:,0].astype(np.float)
-    #_lon = _lat_lon[1:,1].astype(np.float)
-    return _lat_lon
-
-
+# Create single grid path name
 def create_name(_latloni, _gen_path = './'):
     #_latloni is number, return is str like 'AAAA'
     _gen_path = os.getcwd() + '/'
@@ -37,60 +32,64 @@ def create_name(_latloni, _gen_path = './'):
     return aaa[_latloni]
 
 
-# _lat_lon are list, each_lat_lon is a lat lon group, _clm_dic is dictionary
-def run_dssat_main(_lat_lon, _begin_year, _end_year, _climate_path = './', _run_path = './', _dssat_exe= './'):
+def run_dssat_main(_lat_lon, _gene_region, plantday, co2,
+                   _begin_year, _end_year, 
+                   _climate_path='./', _run_path='./',
+                   _dssat_exe='./',    _mask_path='./', _co2_path='./'):
 
     # Loop each point
     #for _latloni in xrange(len(_lat_lon)):
-    for _latloni in xrange(650, 976):
+    for _latloni in xrange(309,len(_lat_lon)):
+        # _lat_lon are list, _lat_lon [lat,lon], _clm_dic is dictionary
         
-        #debug!
-        #_latloni = 650
-        #print _lat_lon[_latloni]
+        # Debug
+        #_latloni = 1000
 
         # create path name
         _name_AAAA = create_name(_latloni)
         _site_path = _run_path + _name_AAAA + '/'
 
-        # TEST!
-        #_lat_in =  32.00
-        #_lon_in = 118.29
         _lat_in = _lat_lon[_latloni][0]
         _lon_in = _lat_lon[_latloni][1]
+
+        plant_day = plantday[_latloni]
+        gene_region = _gene_region[_latloni]
 
         # write .SOL
         _soil_name = write_soil(_lat_in, _lon_in, _name_AAAA, _run_path, _site_path)
 
         # create act acc temp file
-        with open (_site_path + 'act_temp.csv', 'a') as fi:
-            fi.write('year, act_acc_temp, act_acc_temp_begin, act_acc_temp_end \r\n')
+        #with open (_site_path + 'act_temp.csv', 'a') as fi:
+            #fi.write('year, act_acc_temp, act_acc_temp_begin, act_acc_temp_end \r\n')
 
         _rix_list = []
         # Loop year for .WTH
         for _year in xrange(_begin_year, _end_year+1):
-            print 'Processing gird: ', _lat_lon[_latloni], 'year: ', _year
+            print 'NOW PROCESSING GRID: %s, YEAR: %s' % (_latloni, _year)
             _list_year = list(str(_year))
             _last_two_num = str(_list_year[2]) + str(_list_year[3])
             _site_name = _name_AAAA + _last_two_num + '01'
 
-            #find clm list
+            # Find clm list
             _wea_list = clm_list(_year, _climate_path)
+            #print _wea_list
 
-            #read clm vars
+            # Read clm vars
             _clm_dic = read_clm(_lat_in, _lon_in, _year, _wea_list, _climate_path)
 
-            #cal active accumulated temperature, if act_acc_temp less then 5300, next loop
-            act_acc_temp, act_acc_temp_begin, act_acc_temp_end = act_temp(_clm_dic, _year, _site_path)
-            #if act_acc_temp < 5300.0:
-            #    continue
+            # Cal active accumulated temperature, if act_acc_temp less then 5300, next loop
+            #act_acc_temp, act_acc_temp_begin, act_acc_temp_end = act_temp(_clm_dic, _year, _site_path)
 
-            #write clm vars .WTH
-            write_clm(_lat_in, _lon_in, _year, _clm_dic, _site_name, _site_path)
+            # Write clm vars .WTH
+            write_clm(_lat_in, _lon_in, _year, co2, _clm_dic, _site_name, _site_path, _co2_path)
 
             #write .RIX
-            _rix_name = write_rix(_year, _site_name, _soil_name, _site_path, _run_path)
+            _rix_name = write_rix(_year=_year, plant_day=plant_day, gene_region=gene_region, 
+                                  _site_name=_site_name, _soil_name=_soil_name, 
+                                  _site_path=_site_path, _run_path=_run_path)
+            
             _rix_list.append(_rix_name)
-        print 'Finished writing all year between %s and %s.' % (_begin_year, _end_year)
+        print 'Finished writing all files year between %s and %s.' % (_begin_year, _end_year)
             
         #write DSSBatch.v47
         write_batch(_site_path)
@@ -101,32 +100,54 @@ def run_dssat_main(_lat_lon, _begin_year, _end_year, _climate_path = './', _run_
         _ln_rice_gene           = subprocess.call('ln -sf %s/RICER047.CUL %s' % (_run_path, _site_path),                        shell=True)
         _ln_dssat_model_err     = subprocess.call('ln -sf %s../..//Data/MODEL.ERR %s/.' % (_dssat_exe_path, _site_path),        shell=True)
         _ln_dssat_cde           = subprocess.call('ln -sf %s../../Data/*CDE %s/.' % (_dssat_exe_path, _site_path),              shell=True)
-        print 'Finished linking all files DSSAT needs.'
+        #print 'Finished linking all files DSSAT needs.'
 
         # RUN
         _run_dssat              = subprocess.call('cd %s; ./dscsm047.exe RICER047 B DSSBatch.v47' % _site_path,                 shell=True)
 
         
 
+if __name__ == '__main__':
 
-# LETS ROCK!!!
-_climate_path = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
-_run_path = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'
-_dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm/Build/bin/'
-_mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
+    ##### LETS ROCK !!! #####
 
-# Read _lat _lon, first col is lat, second col is lon, first row is 'lat, lon' 
-#_lat_lon = read_latlon(_run_path + '/latlon.csv')
-# input lat and lon
-_lat_lon = rice_area_mask(_mask_path)
+    # Setting path for PPDssat
+    # For NUIST server
+    #_climate_path = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
+    #_run_path = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'
+    #_dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm/Build/bin/'
+    #_mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
 
-# run main loop
-os.chdir(_run_path)
-run_dssat_main(_lat_lon, 1980, 2009, _climate_path, _run_path, _dssat_exe_path)
+    # For local
+    _climate_path   = '/Users/qingsun/GGCM/run_dssat/GFDL_RCP2.6/'
+    _run_path       = '/Users/qingsun/GGCM/run_dssat/'
+    _dssat_exe_path = '/Users/qingsun/GGCM/dssat-csm/build/bin/'
+    _mask_path      = '/Users/qingsun/GGCM/mask_rice/'
+    _co2_path       = '/Users/qingsun/GGCM/mask_rice/'
 
-#post process Summary.out
-#pro_summary()
 
-#plot
+    # Read mask for lat and lon
+    # Mask should be change flexible
+    _lat_lon, _gene_region, plant1, plant2, plant3 = rice_gene_mask(_mask_path)
+
+
+    # D-fixed 380, can be set in file dssat/Data/StandardData/CO2047.WDA
+    # M-Monthly values, observations from Mauna Loa, Hawii 
+    # W-read from weather file
+    CO2 = ['D','W','M'] # NEED to modify CO2 in .RIX 
+    CO2_RCP = ['RCP2.6', 'RCP4.5', 'RCP6.0', 'RCP8.5']
+    CO2_RCP = 'RCP2.6'
+    
+
+    # run main loop
+    os.chdir(_run_path)
+    run_dssat_main(_lat_lon = _lat_lon, _gene_region = _gene_region, plantday = plant1, co2=CO2_RCP,
+                   _begin_year = 2000, _end_year = 2002, 
+                   _climate_path =_climate_path, _run_path = _run_path, 
+                   _dssat_exe = _dssat_exe_path, _mask_path=_mask_path, _co2_path=_co2_path)
+
+    # Post process Summary.out
+    # Using file: post_dssat.py
+
 
 

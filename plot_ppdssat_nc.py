@@ -34,18 +34,19 @@ def plot_PPDssat(lons, lats, _yield_mask, fig_name, colorbar_label, unit = 'kg h
 
     cs = m.contourf(xi, yi, _yield_mask, levels=colorbar_label, cmap=cmap)
     cbar = m.colorbar(cs, location='bottom', pad="10%")
+    plt.title(fig_name, fontsize=12, color='black')
     cbar.set_label(unit)
     cbar.set_ticks(colorbar_label)
     cbar.set_ticklabels(tuple(map(str,colorbar_label.tolist())))  
 
     #plt.title('Rice Yield') 
-    plt.savefig(fig_name, dpi = 300)
-    plt.show()
+    plt.savefig(fig_name + '.png', dpi = 300, bbox_inches='tight')
+    #plt.show()
 #################################### PLOT #####################################
 
 # Read NC file
 # meteo_file = "/Users/qingsun/Desktop/pdssat_erai_hist_default_firr_yield_ric_annual_1979_2010.nc4"
-meteo_file = '/Users/qingsun/GGCM/out_PPDSSAT/DSSAT_outputs.nc'
+meteo_file = '/Users/qingsun/GGCM/run_dssat/PPDSSAT_OUT.nc'
 
 fh = Dataset(meteo_file, mode='r')
 _vars = fh.variables.keys()
@@ -58,33 +59,23 @@ print time
 
 
 plot_var = 'HWAM'
-_yield_mask = fh.variables[plot_var][0,:,:]
-print _yield_mask.shape
-fig_name = '%s_%s.png' % (plot_var,time[0])
-plot_PPDssat(lons, lats, _yield_mask, fig_name, colors='jet', unit = '%s' % plot_var,
-             colorbar_label = np.linspace(0, 10000, 11, dtype = int))
-
-
+_var_out = fh.variables[plot_var][:,:,:]
+print _var_out.shape
 fh.close()
 
 
 
+for i in xrange(_var_out.shape[0]):
+    fig_name = 'PPDssat_%s_%s' % (plot_var,time[i])
+    print '%s' % fig_name
+    plot_PPDssat(lons, lats, _var_out[i,:,:], fig_name, 
+                 colors='jet', unit='Yield (kg/ha)',
+                 colorbar_label = np.linspace(0, 15000, 11, dtype = int))
 
 
 
-'''
-for i in xrange(len(time)):
-    # Plot Data
-    tlml_0 = tlml[i:i+1:, ::, ::]
-    cs = m.pcolor(xi, yi, np.squeeze(tlml_0))
 
-    # Add Colorbar
-    cbar = m.colorbar(cs, location='bottom', pad="10%")
-    #cbar.set_label(tlml_units)
-    # Add Title
-    plt.title('Rice Effective Accumulated Temperature %d (PPDssat)' % time[i]) 
-    plt.savefig('PPDssat_rice_aat_%d.jpg' % time[i])
-    #plt.show()
-    print 'Finish plot year %d.' % time[i]
-'''
+
+
+
 

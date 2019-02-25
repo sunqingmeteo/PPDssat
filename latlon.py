@@ -1,5 +1,7 @@
 # coding=utf-8
 # latlon.csv contains all grid of lat lon, lon is x 720, lat is y 360
+# This file is not run in main code, for local use
+
 from netCDF4 import Dataset
 import numpy as np
 
@@ -20,15 +22,3 @@ for i in xrange(len(lat)):
 with open('latlon.csv','w') as fo:
     fo.write('\n'.join(ls))
 
-
-
-# choose selected grid contains double cropping rice
-
-
-
-
-
-
-
-#with open('latlon_mask.csv','w') as foo:
-#    foo.write('\n'.join(ls))

@@ -23,5 +23,5 @@ def write_batch(_site_path):
     with open(fname, 'w') as fo:
         fo.write('\r\n'.join(ls))
 
-    print 'Finised write DSSBatch.v47.'
+    #print 'Finished write DSSBatch.v47.'
 

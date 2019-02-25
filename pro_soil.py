@@ -34,7 +34,7 @@ def write_soil(_lat_in, _lon_in, _name_AAAA, _run_path, _site_path):
     for i in xrange(len(_lat)):
         _sum_lat_lon.append(abs(float(_lat[i]) - _lat_in) + abs(float(_lon[i]) - _lon_in))
     _latlon_index = _sum_lat_lon.index(min(_sum_lat_lon))
-    print 'The nearest lat and lon index:', _latlon_index, 'lat:', _lat[_latlon_index], 'lon:', _lon[_latlon_index]
+    #print 'Find Soil Data. Lat and lon index:', _latlon_index, 'lat:', _lat[_latlon_index], 'lon:', _lon[_latlon_index]
     
     #lat
     if len(str(int(float(_lon[_latlon_index])))) == 2:
@@ -49,7 +49,7 @@ def write_soil(_lat_in, _lon_in, _name_AAAA, _run_path, _site_path):
     _site_soil_name = _site_soil[0].split(' ')[0]
     
     subprocess.call(' ln -sf %sCHINA_SoilGrids.SOL %s/CN.SOL' % (_run_path, _site_path), shell = True)
-    print 'Find soil name: %s and linked to %s' % (_site_soil_name[1:], _site_path)
+    print 'Finished soil writing: %s%s' % (_site_path, _site_soil_name[1:])
 
     return _site_soil_name[1:]
 
