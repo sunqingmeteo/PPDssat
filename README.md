@@ -81,6 +81,8 @@ Update: 2019.02.25
 1. Add python mpi run file:run_mpi_dssat.py
    Note: only can be run in one cpu for multi-core.
 
+Update: 2019.02.25
+1. Deploy in NUIST server and fix small bugs.
 
 
 
