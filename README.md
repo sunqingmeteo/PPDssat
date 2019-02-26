@@ -69,20 +69,17 @@ Update: 2019.02.20
    Add CO2 subroutine.
 
 4. Need to modify:
-        a. /.RIX CO2->W
-        b. change date in /dssat-csm/Utilities/DATES.for
-                IF (YR .LE. 20) THEN
-                    CENTURY = 2000
-                ELSE
-                    CENTURY = 1900
-        c. /CERES-Rice/RI_Grosub.for
+        a. change date from 1900s to 2000s in /dssat-csm/Utilities/DATES.for
+                Line 81 and Line 578.
+        b. add heat stress function in /CERES-Rice/RI_Grosub.for
 
 Update: 2019.02.25
 1. Add python mpi run file:run_mpi_dssat.py
    Note: only can be run in one cpu for multi-core.
 
-Update: 2019.02.25
-1. Deploy in NUIST server and fix small bugs.
+2. Deploy in NUIST server and fix small bugs.
+
+3. Add post process in main code.
 
 
 
