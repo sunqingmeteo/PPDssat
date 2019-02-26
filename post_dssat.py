@@ -223,10 +223,12 @@ if __name__ == '__main__':
     #run_path = '/Users/qingsun/GGCM/run_dssat/'
     #dirs = ['/Users/qingsun/Desktop/']
 
+    plantpk = 'PK1'
+
     dirs = read_dirs(run_path)
     print 'Total pathes is %s' % (len(dirs))
     
-    _lat_lon, _gene_region, plant1, plant2, plant3 = rice_gene_mask(mask_path)
+    _lat_lon, _gene_region, plantday = rice_gene_mask(mask_path, plantpk)
 
     _out_dssat = read_summary(_lat_lon, dirs)
 

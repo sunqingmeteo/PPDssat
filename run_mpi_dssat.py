@@ -36,8 +36,10 @@ _co2_path       = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
 # M-Monthly values, observations from Mauna Loa, Hawii 
 # W-read from weather file
 #CO2 = ['D','W','M'] # NEED to modify CO2 in .RIX 
-CO2_RCP = ['RCP2.6', 'RCP4.5', 'RCP6.0', 'RCP8.5']
+CO2_RCP = ['RCP2.6', 'RCP4.5', 'RCP6.0', 'RCP8.5', 'FIX']
 CO2_RCP = 'RCP2.6'
+
+plantpk = 'PK1'
 
 run_begin_year = 2000
 run_end_year   = 2000
@@ -116,13 +118,12 @@ def run_mpi_dssat(_latloni, _lat_lon, _gene_region, plantday, co2,
 
 def task(x):
 
-
     # Read mask for lat and lon
     # Mask should be change flexible
-    _lat_lon, _gene_region, plant1, plant2, plant3 = rice_gene_mask(_mask_path)
+    _lat_lon, _gene_region, plantday = rice_gene_mask(_mask_path, plantpk)
 
     run_mpi_dssat(_latloni = x,
-                   _lat_lon = _lat_lon, _gene_region = _gene_region, plantday = plant1, co2=CO2_RCP,
+                   _lat_lon = _lat_lon, _gene_region = _gene_region, plantday = plantday, co2=CO2_RCP,
                    _begin_year = run_begin_year, _end_year = run_end_year, 
                    _climate_path =_climate_path, _run_path = _run_path, 
                    _dssat_exe = _dssat_exe_path, _mask_path=_mask_path, _co2_path=_co2_path)
@@ -134,7 +135,7 @@ def task(x):
 if "__main__" == __name__:
 
     #_mask_path      = '/Users/qingsun/GGCM/mask_rice/'
-    _lat_lon, _gene_region, plant1, plant2, plant3 = rice_gene_mask(_mask_path)
+    _lat_lon, _gene_region, plantday = rice_gene_mask(_mask_path, plantpk)
     
     pool = mp.Pool(processes=10)
     res = pool.map(task, range(len(_lat_lon)))

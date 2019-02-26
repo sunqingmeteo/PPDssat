@@ -133,7 +133,11 @@ def write_clm(_lat_in, _lon_in, _year, co2, _clm_dic, _site_name, _site_path, _c
     ls.append('*WEATHER : %s, CHINA, QING' % _site_name)
     ls.append(' ')
     ls.append('@ INSI      LAT     LONG  ELEV   TAV   AMP REFHT WNDHT    CO2')
-    ls.append('  %s   %6.3f  %7.3f    9   16.5  10.3  2.00  2.00 %6.2f' % (_site_name[0:4], _lat_in, _lon_in, co2_value) )
+    if co2 == 'FIX':
+        ls.append('  %s   %6.3f  %7.3f    9   16.5  10.3  2.00  2.00 %6.2f' % (_site_name[0:4], _lat_in, _lon_in, 380) )
+    else:
+        ls.append('  %s   %6.3f  %7.3f    9   16.5  10.3  2.00  2.00 %6.2f' % (_site_name[0:4], _lat_in, _lon_in, co2_value) )
+ 
     ls.append(' ')
     
     _sorted_var= '@'   

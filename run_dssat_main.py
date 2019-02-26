@@ -117,27 +117,27 @@ if __name__ == '__main__':
 
     # Setting path for PPDssat
     # For NUIST server
-    _climate_path   = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
+    #_climate_path   = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
     #_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/GFDL/rcp2p6'
-    _run_path       = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'
-    _dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm/Build/bin/'
-    _mask_path      = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
-    _co2_path       = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
+    #_run_path       = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'
+    #_dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm/Build/bin/'
+    #_mask_path      = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
+    #_co2_path       = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
 
     # For local
-    #_climate_path   = '/Users/qingsun/GGCM/run_dssat/GFDL_RCP2.6/'
-    #_run_path       = '/Users/qingsun/GGCM/run_dssat/'
-    #_dssat_exe_path = '/Users/qingsun/GGCM/dssat-csm/build/bin/'
-    #_mask_path      = '/Users/qingsun/GGCM/mask_rice/'
-    #_co2_path       = '/Users/qingsun/GGCM/mask_rice/'
+    _climate_path   = '/Users/qingsun/GGCM/run_dssat/GFDL_RCP2.6/'
+    _run_path       = '/Users/qingsun/GGCM/run_dssat/'
+    _dssat_exe_path = '/Users/qingsun/GGCM/dssat-csm/build/bin/'
+    _mask_path      = '/Users/qingsun/GGCM/mask_rice/'
+    _co2_path       = '/Users/qingsun/GGCM/mask_rice/'
 
-    # D-fixed 380, can be set in file dssat/Data/StandardData/CO2047.WDA
-    # M-Monthly values, observations from Mauna Loa, Hawii 
-    # W-read from weather file
-    #CO2 = ['D','W','M'] # NEED to modify CO2 in .RIX 
-    CO2_RCP = ['RCP2.6', 'RCP4.5', 'RCP6.0', 'RCP8.5']
+    # CO2_RCP == 'FIX' = 380
+    #CO2_RCP = ['RCP2.6', 'RCP4.5', 'RCP6.0', 'RCP8.5', 'FIX']
     CO2_RCP = 'RCP2.6'
-    
+
+    #plantpk = ['PK1', 'PK2', 'PK3']
+    plantpk = 'PK1'
+
     run_begin_year = 2000
     run_end_year   = 2000
 
@@ -146,10 +146,10 @@ if __name__ == '__main__':
 
     # Read mask for lat and lon
     # Mask should be change flexible
-    _lat_lon, _gene_region, plant1, plant2, plant3 = rice_gene_mask(_mask_path)
+    _lat_lon, _gene_region, plantday = rice_gene_mask(_mask_path, plantpk)
 
     # run main loop
-    run_dssat_main(_lat_lon = _lat_lon, _gene_region = _gene_region, plantday = plant1, co2=CO2_RCP,
+    run_dssat_main(_lat_lon = _lat_lon, _gene_region = _gene_region, plantday = plantday, co2=CO2_RCP,
                    _begin_year = run_begin_year, _end_year = run_end_year, 
                    _climate_path =_climate_path, _run_path = _run_path, 
                    _dssat_exe = _dssat_exe_path, _mask_path=_mask_path, _co2_path=_co2_path)
