@@ -12,6 +12,7 @@ from pro_rix import write_rix
 from pro_batch import write_batch
 from pro_mask import rice_area_mask, rice_gene_mask
 from run_dssat_main import create_name
+from post_dssat import read_dirs, read_summary, write_nc
 
 
 ################ LETS ROCK !!! ###############################
@@ -138,4 +139,20 @@ if "__main__" == __name__:
     
     pool = mp.Pool(processes=10)
     res = pool.map(task, range(len(_lat_lon)))
+
+    # Post process Summary.out
+    # Using file: post_dssat.py
+    dirs = read_dirs(_run_path)
+    print 'Total pathes is %s' % (len(dirs))
+    if len(dirs) == 1595:
+        plantpk = 'PK1'
+    elif len(dirs) == 826:
+        plantpk = 'PK2'
+    elif len(dirs) == 695:
+        plantpk = 'PK3'
+
+    _out_dssat = read_summary(_lat_lon, dirs)
+
+    output_file_name = 'PPDSSAT_OUT_%s.nc' % (plantpk)
+    write_nc(_out_dssat, mask_path, run_path, output_file_name)
 

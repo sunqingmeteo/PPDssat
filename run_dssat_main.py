@@ -10,6 +10,7 @@ from pro_soil import write_soil
 from pro_rix import write_rix
 from pro_batch import write_batch
 from pro_mask import rice_area_mask, rice_gene_mask
+from post_dssat import read_dirs, read_summary, write_nc
 
 
 # Create single grid path name
@@ -154,8 +155,22 @@ if __name__ == '__main__':
                    _climate_path =_climate_path, _run_path = _run_path, 
                    _dssat_exe = _dssat_exe_path, _mask_path=_mask_path, _co2_path=_co2_path)
 
+    
     # Post process Summary.out
     # Using file: post_dssat.py
+    dirs = read_dirs(_run_path)
+    print 'Total pathes is %s' % (len(dirs))
+    if len(dirs) == 1595:
+        plantpk = 'PK1'
+    elif len(dirs) == 826:
+        plantpk = 'PK2'
+    elif len(dirs) == 695:
+        plantpk = 'PK3'
+
+    _out_dssat = read_summary(_lat_lon, dirs)
+
+    output_file_name = 'PPDSSAT_OUT_%s.nc' % (plantpk)
+    write_nc(_out_dssat, mask_path, run_path, output_file_name)
 
 
 
