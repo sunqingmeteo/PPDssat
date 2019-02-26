@@ -23,6 +23,7 @@ def clm_list(_year, _climate_path = './'):
             path = os.path.join(_root, name)
             _clm_list.append(path)
     _clm_list.sort()
+    #print _clm_list
 
     # Find file names of selected year, 1951-2099
     _clm_year_list = []
@@ -38,7 +39,10 @@ def clm_list(_year, _climate_path = './'):
     for _clm_year_group in xrange(len(_clm_year_list)):
         if _year in xrange(int(_clm_year_list[_clm_year_group][0]), int(_clm_year_list[_clm_year_group][1]) +1):
             _clm_fine_year_list.append(_clm_list[_clm_year_group])
-
+        else:
+            print 'Attention! Year %s not in years of climate data!' % (_year)
+            os.exit()
+    #print _clm_fine_year_list
     return _clm_fine_year_list
 
 
@@ -114,7 +118,8 @@ def read_clm(_lat_in, _lon_in, _year, _wea_list, _climate_path='./'):
             print "Attention! climate data days number not the same as date number"
             os.exit()
         f.close()
-    #print 'Finished reading climate data in %s' % _climate_path
+    print 'Finished reading climate data in %s' % _climate_path
+    #print _clm_dic.keys()
 
     return _clm_dic
 

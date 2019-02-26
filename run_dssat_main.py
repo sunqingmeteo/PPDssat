@@ -39,8 +39,8 @@ def run_dssat_main(_lat_lon, _gene_region, plantday, co2,
                    _dssat_exe='./',    _mask_path='./', _co2_path='./'):
 
     # Loop each point
-    #for _latloni in xrange(len(_lat_lon)):
-    for _latloni in xrange(1585,len(_lat_lon)):
+    for _latloni in xrange(len(_lat_lon)):
+    #for _latloni in xrange(1585,len(_lat_lon)):
         # _lat_lon are list, _lat_lon [lat,lon], _clm_dic is dictionary
         
         # Debug
@@ -117,17 +117,19 @@ if __name__ == '__main__':
 
     # Setting path for PPDssat
     # For NUIST server
-    #_climate_path = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
-    #_run_path = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'
-    #_dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm/Build/bin/'
-    #_mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
+    _climate_path   = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
+    #_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/GFDL/rcp2p6'
+    _run_path       = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'
+    _dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm/Build/bin/'
+    _mask_path      = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
+    _co2_path       = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
 
     # For local
-    _climate_path   = '/Users/qingsun/GGCM/run_dssat/GFDL_RCP2.6/'
-    _run_path       = '/Users/qingsun/GGCM/run_dssat/'
-    _dssat_exe_path = '/Users/qingsun/GGCM/dssat-csm/build/bin/'
-    _mask_path      = '/Users/qingsun/GGCM/mask_rice/'
-    _co2_path       = '/Users/qingsun/GGCM/mask_rice/'
+    #_climate_path   = '/Users/qingsun/GGCM/run_dssat/GFDL_RCP2.6/'
+    #_run_path       = '/Users/qingsun/GGCM/run_dssat/'
+    #_dssat_exe_path = '/Users/qingsun/GGCM/dssat-csm/build/bin/'
+    #_mask_path      = '/Users/qingsun/GGCM/mask_rice/'
+    #_co2_path       = '/Users/qingsun/GGCM/mask_rice/'
 
     # D-fixed 380, can be set in file dssat/Data/StandardData/CO2047.WDA
     # M-Monthly values, observations from Mauna Loa, Hawii 
