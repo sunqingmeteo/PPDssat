@@ -39,9 +39,10 @@ def clm_list(_year, _climate_path = './'):
     for _clm_year_group in xrange(len(_clm_year_list)):
         if _year in xrange(int(_clm_year_list[_clm_year_group][0]), int(_clm_year_list[_clm_year_group][1]) +1):
             _clm_fine_year_list.append(_clm_list[_clm_year_group])
-        else:
-            print 'Attention! Year %s not in years of climate data!' % (_year)
-            os.exit()
+    
+    if len(_clm_fine_year_list) == 0:
+        print 'Attention! Year %s not in years of climate data!' % (_year)
+        os.exit()
     #print _clm_fine_year_list
     return _clm_fine_year_list
 
@@ -70,6 +71,7 @@ def read_clm(_lat_in, _lon_in, _year, _wea_list, _climate_path='./'):
     _clm_dic = {}
     _clm_dic['DATE'] = _datelist
     for _wea in xrange(len(_wea_list)):
+        
         f = Dataset(_wea_list[_wea], 'r')
         _time = f.variables['time'][:]
         _time = _time.astype(np.int64)
@@ -86,6 +88,7 @@ def read_clm(_lat_in, _lon_in, _year, _wea_list, _climate_path='./'):
         
         #exact var name
         for i in _var_trans.keys():
+            #print _var_trans.keys(),i
             if i in _wea_list[_wea]:
                 _var = i
         #print _wea_list[_wea], _var, _nctime_bg_index, _nctime_ed_index
@@ -93,20 +96,20 @@ def read_clm(_lat_in, _lon_in, _year, _wea_list, _climate_path='./'):
         _clm_var = _clm_var.astype('float64')
 
         # Climate data UNIT transfer
-        # DSSAT UNIT                MERRA UNIT
+        # DSSAT UNIT                CLIMATE DATA UNIT
         # RAIN: mm day-1            kg m-2 s-1
         # SRAD: MJ m-2 day-1        W m-2            1 w m-2 = 0.0864 MJ m-2 day-1
         # TMAX: C TMIN: C           K
         # WIND: km d-1              m s-1
         if _var == 'pr':
             _clm_var *= 3600 * 24 
-        if _var == 'rsds':
+        elif _var == 'rsds':
             _clm_var *= 0.0864 
-        if _var == 'tasmax':
+        elif _var == 'tasmax':
             _clm_var -= 273.15
-        if _var == 'tasmin':
+        elif _var == 'tasmin':
             _clm_var -= 273.15
-        if _var == 'wind':
+        elif _var == 'wind':
             _clm_var *= 3.6 * 24 
        
         #print _clm_var.shape, np.array(datelist(_begin_day, _end_day)).shape 

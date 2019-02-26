@@ -45,7 +45,7 @@ def run_dssat_main(_lat_lon, _gene_region, plantday, co2,
         # _lat_lon are list, _lat_lon [lat,lon], _clm_dic is dictionary
         
         # Debug
-        #_latloni = 1000
+        #_latloni = 1001
 
         # Enter run path
         os.chdir(_run_path)
@@ -109,17 +109,18 @@ def run_dssat_main(_lat_lon, _gene_region, plantday, co2,
 
         # RUN
         _run_dssat              = subprocess.call('cd %s; ./dscsm047.exe RICER047 B DSSBatch.v47' % _site_path,                 shell=True)
+        
+        #os.exit()
 
         
-
 if __name__ == '__main__':
 
     ##### LETS ROCK !!! #####
 
     # Setting path for PPDssat
     # For NUIST server
-    _climate_path   = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
-    #_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/GFDL/rcp2p6'
+    #_climate_path   = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
+    _climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/GFDL/rcp2p6/'
     _run_path       = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'
     _dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm/Build/bin/'
     _mask_path      = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
@@ -139,8 +140,8 @@ if __name__ == '__main__':
     #plantpk = ['PK1', 'PK2', 'PK3']
     plantpk = 'PK1'
 
-    run_begin_year = 2000
-    run_end_year   = 2000
+    run_begin_year = 2020
+    run_end_year   = 2099
 
     ################## SETTING ABOVE ##########################
 
@@ -166,6 +167,9 @@ if __name__ == '__main__':
         plantpk = 'PK2'
     elif len(dirs) == 695:
         plantpk = 'PK3'
+    else:
+        print 'Grid number is not same as any Plant Peak number!'
+        os.exit()
 
     _out_dssat = read_summary(_lat_lon, dirs)
 
