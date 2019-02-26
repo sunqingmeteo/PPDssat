@@ -77,6 +77,10 @@ Update: 2019.02.20
                     CENTURY = 1900
         c. /CERES-Rice/RI_Grosub.for
 
+Update: 2019.02.25
+1. Add python mpi run file:run_mpi_dssat.py
+   Note: only can be run in one cpu for multi-core.
+
 
 
 
