@@ -31,7 +31,7 @@ def rice_gene_mask(_file_path = './', plantpk='PK1'):
     _region = _f.variables['region'][:]
     _f.close()
     
-    _f = Dataset(_file_path + '/RiceAtlas_calendar.nc', 'r')
+    _f = Dataset(_file_path + '/RiceAtlas_calendar_new.nc', 'r')
     _lat_in = _f.variables['lat'][:]
     _lon_in = _f.variables['lon'][:]
     _plant1 = _f.variables['PLANTPK1'][:]
@@ -53,8 +53,6 @@ def rice_gene_mask(_file_path = './', plantpk='PK1'):
                         _lat_lon.append([_lat[i], _lon[j]])
                         _gene_region.append(_region[i,j])
                         plantday.append(_plant1[i,j])
-                        plant2.append(_plant2[i,j])
-                        plant3.append(_plant3[i,j])
     elif plantpk == 'PK2':
         for i in xrange(len(_lat)):
             for j in xrange(len(_lon)):
@@ -79,7 +77,7 @@ def rice_gene_mask(_file_path = './', plantpk='PK1'):
         print 'Choose plant peak day from PK1, PK2 or PK3'
         os.exit()
 
-    print 'Total grid number for China domain is %s' % (len(_lat_lon))
+    print 'Total grid number for China domain is %s' % (len(plantday))
 
     return _lat_lon, _gene_region, plantday
 
