@@ -173,7 +173,7 @@ if __name__ == '__main__':
 
     _out_dssat = read_summary(_lat_lon, dirs)
 
-    output_file_name = 'PPDSSAT_OUT_%s.nc' % (plantpk)
+    output_file_name = 'PPDSSAT_OUT_%s_%s_%s_%s.nc' % (CO2_RCP, plantpk, run_begin_year, run_end_year)
     write_nc(_out_dssat, mask_path, run_path, output_file_name)
 
 

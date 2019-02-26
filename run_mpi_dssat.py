@@ -30,8 +30,7 @@ _run_path       = '/nuist/u/home/yangzaiqiang/scratch/run_dssat1/'
 #_mask_path      = '/Users/qingsun/GGCM/mask_rice/'
 #_co2_path       = '/Users/qingsun/GGCM/mask_rice/'
 
-#CO2 = ['D','W','M'] # NEED to modify CO2 in .RIX 
-CO2_RCP = ['RCP2.6', 'RCP4.5', 'RCP6.0', 'RCP8.5', 'FIX']
+#CO2_RCP = ['RCP2.6', 'RCP4.5', 'RCP6.0', 'RCP8.5', 'FIX']
 CO2_RCP = 'RCP2.6'
 
 #plnatpk = ['PK1', 'PK2', 'PK3']
@@ -150,9 +149,12 @@ if "__main__" == __name__:
         plantpk = 'PK2'
     elif len(dirs) == 695:
         plantpk = 'PK3'
+    else:
+        print 'Grid number is not same as any Plant Peak number!'
+        os.exit()
 
     _out_dssat = read_summary(_lat_lon, dirs)
 
-    output_file_name = 'PPDSSAT_OUT_%s.nc' % (plantpk)
+    output_file_name = 'PPDSSAT_OUT_%s_%s_%s_%s.nc' % (CO2_RCP, plantpk, run_begin_year, run_end_year)
     write_nc(_out_dssat, mask_path, run_path, output_file_name)
 
