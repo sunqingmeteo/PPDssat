@@ -216,7 +216,7 @@ if __name__ == '__main__':
 
     ##### For NUIST server
     mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
-    run_path  = '/nuist/u/home/yangzaiqiang/scratch/run_dssat1/'
+    run_path  = '/nuist/u/home/yangzaiqiang/scratch/run_dssat2/'
 
     ##### For local run
     #mask_path = '/Users/qingsun/GGCM/mask_rice/'
