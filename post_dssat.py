@@ -215,15 +215,15 @@ def write_nc(dssat_out_nc, _mask_path = './', _file_path='./', output_file_name 
 if __name__ == '__main__':
 
     ##### For NUIST server
-    mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
-    run_path  = '/nuist/u/home/yangzaiqiang/scratch/run_dssat2/'
+    _mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
+    _run_path  = '/nuist/u/home/yangzaiqiang/scratch/run_dssat3/'
 
     ##### For local run
-    #mask_path = '/Users/qingsun/GGCM/mask_rice/'
-    #run_path = '/Users/qingsun/GGCM/run_dssat/'
+    #_mask_path = '/Users/qingsun/GGCM/mask_rice/'
+    #_run_path = '/Users/qingsun/GGCM/run_dssat/'
     #dirs = ['/Users/qingsun/Desktop/']
 
-    dirs = read_dirs(run_path)
+    dirs = read_dirs(_run_path)
     print 'Total pathes is %s' % (len(dirs))
     if len(dirs) == 1595:
         plantpk = 'PK1'
@@ -232,12 +232,12 @@ if __name__ == '__main__':
     elif len(dirs) == 695:
         plantpk = 'PK3'
     
-    _lat_lon, _gene_region, plantday = rice_gene_mask(mask_path, plantpk)
+    _lat_lon, _gene_region, plantday = rice_gene_mask(_mask_path, plantpk)
 
     _out_dssat = read_summary(_lat_lon, dirs)
 
     output_file_name = 'PPDSSAT_OUT_%s.nc' % (plantpk)
-    write_nc(_out_dssat, mask_path, run_path, output_file_name)
+    write_nc(_out_dssat, _mask_path, _run_path, output_file_name)
 
 
 
