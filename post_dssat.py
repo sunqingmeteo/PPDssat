@@ -4,13 +4,13 @@ import numpy as np
 from netCDF4 import Dataset
 from pro_mask import rice_gene_mask
 
-
 def read_dirs(_path = './'):
     # output: list
     _dirs = []
     for root,dirs,files in os.walk(_path):
         if 'A' in root:
-            _dirs.append(root)
+            for dir in dirs:
+                _dirs.append(os.path.join(root, dir))
     _dirs.sort()
 
     return _dirs
@@ -216,7 +216,8 @@ if __name__ == '__main__':
 
     ##### For NUIST server
     _mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
-    _run_path  = '/nuist/u/home/yangzaiqiang/scratch/run_dssat3/'
+    #_run_path  = '/nuist/u/home/yangzaiqiang/scratch/run_dssat3/'
+    _run_path = '/nuist/u/home/yangzaiqiang/scratch/Results/AGCFSR_RCP2.6_1980_2010_PK1_old/'
 
     ##### For local run
     #_mask_path = '/Users/qingsun/GGCM/mask_rice/'
@@ -225,12 +226,16 @@ if __name__ == '__main__':
 
     dirs = read_dirs(_run_path)
     print 'Total pathes is %s' % (len(dirs))
+
     if len(dirs) == 1595:
         plantpk = 'PK1'
     elif len(dirs) == 826:
         plantpk = 'PK2'
     elif len(dirs) == 695:
         plantpk = 'PK3'
+    else:
+        print 'File dir numbers is not same as mask'
+        os.exit()
     
     _lat_lon, _gene_region, plantday = rice_gene_mask(_mask_path, plantpk)
 
@@ -238,7 +243,6 @@ if __name__ == '__main__':
 
     output_file_name = 'PPDSSAT_OUT_%s.nc' % (plantpk)
     write_nc(_out_dssat, _mask_path, _run_path, output_file_name)
-
 
 
 
