@@ -1,10 +1,9 @@
 # QING SUN/NUIST 2019.02.25
-# For multi-core run 
+# MAIN CODE FOR PPDSSAT MPI RUN
 
 import os, sys, re, subprocess,time 
 import multiprocessing as mp 
 import numpy as np
-
 
 from pro_cli_to_dssat import clm_list, read_clm, write_clm, act_temp
 from pro_soil import write_soil
@@ -14,28 +13,20 @@ from pro_mask import rice_area_mask, rice_gene_mask
 from run_dssat_main import create_name
 from post_dssat import read_dirs, read_summary, write_nc
 
-
-################ LETS ROCK !!! ###############################
-
-# Setting path for PPDssat
-# For NUIST server
+################## LETS ROCK !!!   ###############################
+################## SETTING SECTION ###############################
+# Setting pathes for PPDssat
+# For NUIST server run
 #_climate_path   = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
-#_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/GFDL/rcp2p6/'
-_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/MIROC/rcp2p6/'
+_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/GFDL/rcp8p5/'
+#_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/MIROC/rcp2p6/'
 _run_path       = '/nuist/u/home/yangzaiqiang/scratch/run_dssat5/'
 
-# For local
-#_climate_path   = '/Users/qingsun/GGCM/run_dssat/GFDL_RCP2.6/'
-#_run_path       = '/Users/qingsun/GGCM/run_dssat/'
-#_dssat_exe_path = '/Users/qingsun/GGCM/dssat-csm/build/bin/'
-#_mask_path      = '/Users/qingsun/GGCM/mask_rice/'
-#_co2_path       = '/Users/qingsun/GGCM/mask_rice/'
-
 #CO2_RCP = ['RCP2.6', 'RCP4.5', 'RCP6.0', 'RCP8.5', 'FIX']
-CO2_RCP = 'RCP2.6'
+CO2_RCP = 'RCP8.5'
 
 #plantpk = ['PK1', 'PK2', 'PK3']
-plantpk = 'PK3'
+plantpk = 'PK1'
 
 run_begin_year = 2020
 run_end_year   = 2099
@@ -44,8 +35,13 @@ _dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm/Build/bin/'
 _mask_path      = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
 _co2_path       = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
 
-################## SETTING BEFORE ##########################
-
+# For local
+#_climate_path   = '/Users/qingsun/GGCM/run_dssat/GFDL_RCP2.6/'
+#_run_path       = '/Users/qingsun/GGCM/run_dssat/'
+#_dssat_exe_path = '/Users/qingsun/GGCM/dssat-csm/build/bin/'
+#_mask_path      = '/Users/qingsun/GGCM/mask_rice/'
+#_co2_path       = '/Users/qingsun/GGCM/mask_rice/'
+################## SETTING BEFORE ###############################
 
 def run_mpi_dssat(_latloni, _lat_lon, _gene_region, plantday, co2,
                    _begin_year, _end_year, 
@@ -137,7 +133,7 @@ if "__main__" == __name__:
     #_mask_path      = '/Users/qingsun/GGCM/mask_rice/'
     _lat_lon, _gene_region, plantday = rice_gene_mask(_mask_path, plantpk)
     
-    pool = mp.Pool(processes=10)
+    pool = mp.Pool(processes=28)
     res = pool.map(task, range(len(_lat_lon)))
 
     # Post process Summary.out
