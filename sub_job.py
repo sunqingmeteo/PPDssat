@@ -4,13 +4,13 @@
 import os, sys, re, subprocess
 import numpy as np
 
-def string_switch(filename,origin_str,target_str,s=1):
+def string_switch(filename, original_str, target_str,s=1):
     # s = 1 is only replace first origin_str
     # s = g is replace all origin_str in file
-    with open(filename, "r", encoding="utf-8") as f:
+    with open(filename, "r") as f:
         lines = f.readlines()
  
-    with open(filename, "w", encoding="utf-8") as f_w:
+    with open(filename, "w") as f_w:
         n = 0
         if s == 1:
             for line in lines:
@@ -18,6 +18,7 @@ def string_switch(filename,origin_str,target_str,s=1):
                     line = line.replace(original_str,target_str)
                     f_w.write(line)
                     n += 1
+                    print 'Modified string to %s' % (target_str)    
                     break
                 f_w.write(line)
                 n += 1
@@ -62,55 +63,61 @@ if "__main__" == __name__:
 
     _climate_path = '/nuist/u/home/yangzaiqiang/work/CMIP5/'
     _scrath = '/nuist/u/home/yangzaiqiang/scratch/'
+    run_begin_year = 2020
+    run_end_year   = 2099
 
     _climate_data = 'MIROC'
     for _plantpk in _plantpk_list:
         for _co2 in _co2_list:
             for _rcps in _rcps_list:
 
-            # Create run path 
-            _run_path = '%s/%s_%s_%s_%s_%s' % (_scrath, _climate_data, str.upper(_rcps), run_begin_year, run_end_year, _plantpk)
-            _create_path = subprocess.call('mkdir %s' % (_run_path), shell=True)
-            print 'Creater dir %s' % (_run_path)
+                # Create run path 
+                _run_path = '%s/%s_%s_%s_%s_%s' % (_scrath, _climate_data, str.upper(_rcps), run_begin_year, run_end_year, _plantpk)
+                if os.path.exists(_run_path):
+                    os.exit("Directory is already exist!!!")
+                else:
+                    os.mkdir(_run_path)
+                    print 'Create dir %s' % (_run_path)
 
-            # Enter run path
-            os.chdir(_run_path)
+                # Enter run path
+                os.chdir(_run_path)
 
-            _ln_run_dssat = subprocess.call('ln -sf /nuist/u/home/yangzaiqiang/scratch/run_dssat %s/.' % (_run_path), shell=True)
-            _cp_ppdssat   = subprocess.call('cp -r /nuist/u/home/yangzaiqiang/scratch/PPDssat %s/.' % (_run_path), shell=True)
-            string_switch('%s/PPDssat/run_mpi_dssat.py' % (_run_path), 
-                          '_climate_path   = \'/nuist/u/home/yangzaiqiang/work/CMIP5/GFDL/rcp2p6/\'', 
-                          '_climate_path   = \'/nuist/u/home/yangzaiqiang/work/CMIP5/%s/%s/\'' % (_climate_data, _rcps),
-                          )
-            string_switch('%s/PPDssat/run_mpi_dssat.py' % (_run_path), 
-                          '_run_path       = \'/nuist/u/home/yangzaiqiang/scratch/run_dssat/\'', 
-                          '_run_path       = \'%s\'' % (_run_path),
-                          )
-            string_switch('%s/PPDssat/run_mpi_dssat.py' % (_run_path), 
-                          'CO2_RCP = \'RCP2.6\'', 
-                          'CO2_RCP = \'%s\'' % (_co2),
-                          )
-            string_switch('%s/PPDssat/run_mpi_dssat.py' % (_run_path), 
-                          'plantpk = \'PK1\'', 
-                          'plantpk = \'%s\'' % (_plantpk),
-                          )
+                _ln_run_dssat = subprocess.call('cp -r /nuist/u/home/yangzaiqiang/scratch/run_dssat/* %s/.' % (_run_path), shell=True)
+                _cp_ppdssat   = subprocess.call('cp -r /nuist/u/home/yangzaiqiang/scratch/PPDssat %s/.' % (_run_path), shell=True)
+                string_switch('%s/PPDssat/run_mpi_dssat.py' % (_run_path), 
+                              "_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/GFDL/rcp2p6/'", 
+                              "_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/%s/%s/'" % (_climate_data, _rcps),
+                              )
+                string_switch('%s/PPDssat/run_mpi_dssat.py' % (_run_path), 
+                              "_run_path       = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'", 
+                              "_run_path       = '%s/'" % (_run_path),
+                              )
+                string_switch('%s/PPDssat/run_mpi_dssat.py' % (_run_path), 
+                              "CO2_RCP = 'RCP2.6'", 
+                              "CO2_RCP = '%s'" % (_co2),
+                              )
+                string_switch('%s/PPDssat/run_mpi_dssat.py' % (_run_path), 
+                              "plantpk = 'PK1'", 
+                              "plantpk = '%s'" % (_plantpk),
+                              )
 
-            # Create job script and submit it.
-            job_content = ['#!/bin/bash\n',
-                           '\n',
-                           '#PBS -N job_PPDSSAT\n',
-                           '#PBS -q Longtime\n',
-                           '#PBS -l nodes=1:ppn=28\n',
-                           '#PBS -l walltime=100:00:00\n',
-                           '\n',
-                           'cd %s/PPDssat/\n' % (_run_path),
-                           'python run_mpi_dssat.py\n',
-                           ]
+                # Create job script and submit it.
+                job_content = ['#!/bin/bash\n',
+                               '\n',
+                               '#PBS -N job_PPDSSAT\n',
+                               '#PBS -q Longtime\n',
+                               '#PBS -l nodes=1:ppn=28\n',
+                               '#PBS -l walltime=100:00:00\n',
+                               '\n',
+                               'cd %s/PPDssat/\n' % (_run_path),
+                               'python run_mpi_dssat.py\n',
+                               ]
 
-            with open('%s/job_PPDSSAT.sh' % (_run_path), 'w') as f:
-                f.writelines(job_content)
+                with open('%s/job_PPDSSAT.sh' % (_run_path), 'w') as f:
+                    f.writelines(job_content)
 
-            submit_job = subprocess.call('qsub %s/job_PPDSSAT.sh' % (_run_path), shell=True)
+                submit_job = subprocess.call('qsub %s/job_PPDSSAT.sh' % (_run_path), shell=True)
+                os.exit()
 
 
 
