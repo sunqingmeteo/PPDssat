@@ -17,13 +17,11 @@ from post_dssat import read_dirs, read_summary, write_nc
 ################## SETTING SECTION ###############################
 # Setting pathes for PPDssat
 # For NUIST server run
-#_climate_path   = '/nuist/u/home/yangzaiqiang/work/RE-ANA-CLM/AgCFSR/'
-_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/GFDL/rcp8p5/'
-#_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/MIROC/rcp2p6/'
-_run_path       = '/nuist/u/home/yangzaiqiang/scratch/run_dssat5/'
+_climate_path   = '/nuist/u/home/yangzaiqiang/work/CMIP5/GFDL/rcp2p6/'
+_run_path       = '/nuist/u/home/yangzaiqiang/scratch/run_dssat/'
 
 #CO2_RCP = ['RCP2.6', 'RCP4.5', 'RCP6.0', 'RCP8.5', 'FIX']
-CO2_RCP = 'RCP8.5'
+CO2_RCP = 'RCP2.6'
 
 #plantpk = ['PK1', 'PK2', 'PK3']
 plantpk = 'PK1'
@@ -152,6 +150,10 @@ if "__main__" == __name__:
 
     _out_dssat = read_summary(_lat_lon, dirs)
 
-    output_file_name = 'PPDSSAT_OUT_%s_%s_%s_%s.nc' % (CO2_RCP, plantpk, run_begin_year, run_end_year)
+    if CO2_RCP == 'FIX':
+        output_file_name = 'PPDSSAT_OUT_%s_withoutco2_%s_%s_%s.nc' % (CO2_RCP, run_begin_year, run_end_year, plantpk)
+    else:
+        output_file_name = 'PPDSSAT_OUT_%s_co2_%s_%s_%s.nc' % (CO2_RCP, run_begin_year, run_end_year, plantpk)
+    
     write_nc(_out_dssat, _mask_path, _run_path, output_file_name)
 

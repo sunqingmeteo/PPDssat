@@ -1,9 +1,8 @@
 # coding=utf-8
-# QING SUN/NUIST
-# Main code for PPDssat
+# QING SUN/NUIST 2019.03.01
+# Main code for serial PPDssat
 import os, sys, re, subprocess
 import numpy as np
-
 
 from pro_cli_to_dssat import clm_list, read_clm, write_clm, act_temp
 from pro_soil import write_soil

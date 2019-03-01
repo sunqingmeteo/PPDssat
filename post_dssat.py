@@ -21,7 +21,7 @@ def read_dirs(_path = './'):
     for root,dirs,files in os.walk(_path):
         for dir in dirs:
             if dir in _path_list:
-                print dir, type(dir)
+                #print dir, type(dir)
                 _dirs.append(os.path.join(root, dir))
     _dirs.sort()
 
