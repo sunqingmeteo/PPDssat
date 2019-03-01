@@ -4,17 +4,28 @@ import numpy as np
 from netCDF4 import Dataset
 from pro_mask import rice_gene_mask
 
+def path_list():
+    _words = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    path_list = []
+    for i in xrange(len(_words)):
+        for j in xrange(len(_words)):
+            for k in xrange(len(_words)):
+                for l in xrange(len(_words)):
+                    path_list.append(_words[i]+_words[j] + _words[k] + _words[l])
+    return path_list
+
 def read_dirs(_path = './'):
     # output: list
     _dirs = []
+    _path_list = path_list()
     for root,dirs,files in os.walk(_path):
-        if 'A' in root:
-            for dir in dirs:
+        for dir in dirs:
+            if dir in _path_list:
+                print dir, type(dir)
                 _dirs.append(os.path.join(root, dir))
     _dirs.sort()
 
     return _dirs
-
 
 def read_summary(_lat_lon, _dirs):
     # input: _lat_lon: list number[(lat, lon),]; dirs: list [str], same index
@@ -26,110 +37,61 @@ def read_summary(_lat_lon, _dirs):
     # Loop each dirs, each point
     for dirs_i in xrange(len(_dirs)):
         
-        print 'Reading Summary.OUT from directory %s' % _dirs[dirs_i]
-
+        #print 'Reading Summary.OUT from directory %s' % _dirs[dirs_i]
         # read summary.out
         try:
             with open(_dirs[dirs_i] + '/Summary.OUT', 'r') as fi:
                 summary = fi.readlines()
-
-            # each grid have lat, lon, area, and all year, all yield
-            _name_gird_dic = {}
-
-            # Start from SDAT, No.13
-            station_name = '%s' % summary[4].split()[7][0:4]
-            dssat_out_nc[station_name] = {}
-            summary_var_names = summary[3].split()[13:]
-            #print len(summary_var_names),summary_var_names
-
-            dssat_out_nc[station_name]['LAT'] = _lat_lon[dirs_i][0]
-            dssat_out_nc[station_name]['LON'] = _lat_lon[dirs_i][1]
-
-            for i in xrange(len(summary)-4):
-                # Start from SDAT, No.12, [102:106]]=year
-                _name_gird_dic[summary[i+4][102:106]] = summary[i+4].split()[12:]                                              
-                # in some situation, rice will harvest next year even set last harvest date
-                if summary[i+4][102:106] != summary[i+4][126:130]:
-                    _name_gird_dic[summary[i+4][102:106]][15] = 0   # ADAT
-                    _name_gird_dic[summary[i+4][102:106]][16] = 0   # MDAT
-                    _name_gird_dic[summary[i+4][102:106]][20] = 0   # HWAM
-
-            # Start from col 12 SDAT to lat, all are numbers, create blank dic and list 
-            
-            for _vars in xrange(len(summary_var_names)):            
-                dssat_out_nc[station_name][summary_var_names[_vars]] = {}
-                for _year in sorted(_name_gird_dic.keys()):
-                    if _year.isdigit():
-                        dssat_out_nc[station_name][summary_var_names[_vars]][_year] = []
-                        #print _year
-
-            dssat_out_nc[station_name]['YEAR'] = []
-            for _year in sorted(_name_gird_dic.keys()):
-                if _year.isdigit():
-                    dssat_out_nc[station_name]['YEAR'].append(_year)
-                    # Start from col 12 SDAT to lat, all are numbers
-                    for _vars in xrange(len(summary_var_names)):
-                        if summary_var_names[_vars] in ['SDAT', 'ADAT', 'PDAT', 'EDAT', 'MDAT', 'HDAT']:
-                            dssat_out_nc[station_name][summary_var_names[_vars]][_year].append(round(float(_name_gird_dic[_year][_vars][-3:]),4))
-                        else:
-                            dssat_out_nc[station_name][summary_var_names[_vars]][_year].append(round(float(_name_gird_dic[_year][_vars]),4))
-                    
-            # read accumulative active temperature, already sorted by year
-            #aat = np.loadtxt(_dirs[dirs_i] + '/act_temp.csv', dtype=np.str, delimiter=",", skiprows=1)
-            #aat_list = aat[:,1].tolist()
-            #for k in xrange(len(aat_list)):
-            #    dssat_out_nc['AAT'].append(round(float(aat_list[k]),2))
         except:
             with open(_dirs[0] + '/Summary.OUT', 'r') as fi:
                 summary = fi.readlines()
 
-            # each grid have lat, lon, area, and all year, all yield
-            _name_gird_dic = {}
+        # each grid have lat, lon, area, and all year, all yield
+        _name_gird_dic = {}
 
-            # Start from SDAT, No.13
-            station_name = '%s' % summary[4].split()[7][0:4]
-            dssat_out_nc[station_name] = {}
-            summary_var_names = summary[3].split()[13:]
-            #print len(summary_var_names),summary_var_names
+        # Start from SDAT, No.13
+        station_name = '%s' % summary[4].split()[7][0:4]
+        dssat_out_nc[station_name] = {}
+        summary_var_names = summary[3].split()[13:]
+        #print len(summary_var_names),summary_var_names
 
-            dssat_out_nc[station_name]['LAT'] = _lat_lon[dirs_i][0]
-            dssat_out_nc[station_name]['LON'] = _lat_lon[dirs_i][1]
+        dssat_out_nc[station_name]['LAT'] = _lat_lon[dirs_i][0]
+        dssat_out_nc[station_name]['LON'] = _lat_lon[dirs_i][1]
 
-            for i in xrange(len(summary)-4):
-                # Start from SDAT, No.12, [102:106]]=year
-                _name_gird_dic[summary[i+4][102:106]] = summary[i+4].split()[12:]                                              
-                # in some situation, rice will harvest next year even set last harvest date
-                if summary[i+4][102:106] != summary[i+4][126:130]:
-                    _name_gird_dic[summary[i+4][102:106]][15] = 0   # ADAT
-                    _name_gird_dic[summary[i+4][102:106]][16] = 0   # MDAT
-                    _name_gird_dic[summary[i+4][102:106]][20] = 0   # HWAM
+        for i in xrange(len(summary)-4):
+            # Start from SDAT, No.12, [102:106]]=year
+            _name_gird_dic[summary[i+4][102:106]] = summary[i+4].split()[12:]                                              
+            # in some situation, rice will harvest next year even set last harvest date
+            if summary[i+4][102:106] != summary[i+4][126:130]:
+                _name_gird_dic[summary[i+4][102:106]][15] = 0   # ADAT
+                _name_gird_dic[summary[i+4][102:106]][16] = 0   # MDAT
+                _name_gird_dic[summary[i+4][102:106]][20] = 0   # HWAM
 
-            # Start from col 12 SDAT to lat, all are numbers, create blank dic and list 
-            
-            for _vars in xrange(len(summary_var_names)):            
-                dssat_out_nc[station_name][summary_var_names[_vars]] = {}
-                for _year in sorted(_name_gird_dic.keys()):
-                    if _year.isdigit():
-                        dssat_out_nc[station_name][summary_var_names[_vars]][_year] = []
-                        #print _year
-
-            dssat_out_nc[station_name]['YEAR'] = []
+        # Start from col 12 SDAT to lat, all are numbers, create blank dic and list 
+        
+        for _vars in xrange(len(summary_var_names)):            
+            dssat_out_nc[station_name][summary_var_names[_vars]] = {}
             for _year in sorted(_name_gird_dic.keys()):
                 if _year.isdigit():
-                    dssat_out_nc[station_name]['YEAR'].append(_year)
-                    # Start from col 12 SDAT to lat, all are numbers
-                    for _vars in xrange(len(summary_var_names)):
-                        if summary_var_names[_vars] in ['SDAT', 'ADAT', 'PDAT', 'EDAT', 'MDAT', 'HDAT']:
-                            dssat_out_nc[station_name][summary_var_names[_vars]][_year].append(round(float(_name_gird_dic[_year][_vars][-3:]),4))
-                        else:
-                            dssat_out_nc[station_name][summary_var_names[_vars]][_year].append(round(float(_name_gird_dic[_year][_vars]),4))
-                    
-            # read accumulative active temperature, already sorted by year
-            #aat = np.loadtxt(_dirs[dirs_i] + '/act_temp.csv', dtype=np.str, delimiter=",", skiprows=1)
-            #aat_list = aat[:,1].tolist()
-            #for k in xrange(len(aat_list)):
-            #    dssat_out_nc['AAT'].append(round(float(aat_list[k]),2))
+                    dssat_out_nc[station_name][summary_var_names[_vars]][_year] = []
+                    #print _year
 
+        dssat_out_nc[station_name]['YEAR'] = []
+        for _year in sorted(_name_gird_dic.keys()):
+            if _year.isdigit():
+                dssat_out_nc[station_name]['YEAR'].append(_year)
+                # Start from col 12 SDAT to lat, all are numbers
+                for _vars in xrange(len(summary_var_names)):
+                    if summary_var_names[_vars] in ['SDAT', 'ADAT', 'PDAT', 'EDAT', 'MDAT', 'HDAT']:
+                        dssat_out_nc[station_name][summary_var_names[_vars]][_year].append(round(float(_name_gird_dic[_year][_vars][-3:]),4))
+                    else:
+                        dssat_out_nc[station_name][summary_var_names[_vars]][_year].append(round(float(_name_gird_dic[_year][_vars]),4))
+                
+        # read accumulative active temperature, already sorted by year
+        #aat = np.loadtxt(_dirs[dirs_i] + '/act_temp.csv', dtype=np.str, delimiter=",", skiprows=1)
+        #aat_list = aat[:,1].tolist()
+        #for k in xrange(len(aat_list)):
+        #    dssat_out_nc['AAT'].append(round(float(aat_list[k]),2))
 
     return dssat_out_nc
 
@@ -215,17 +177,18 @@ def write_nc(dssat_out_nc, _mask_path = './', _file_path='./', output_file_name 
 if __name__ == '__main__':
 
     ##### For NUIST server
-    _mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
-    #_run_path  = '/nuist/u/home/yangzaiqiang/scratch/run_dssat3/'
-    _run_path = '/nuist/u/home/yangzaiqiang/scratch/Results/AGCFSR_RCP2.6_1980_2010_PK1_old/'
+    #_mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
+    #_run_path = '/nuist/u/home/yangzaiqiang/scratch/Results/AGCFSR_RCP2.6_1980_2010_PK1_old/'
 
     ##### For local run
-    #_mask_path = '/Users/qingsun/GGCM/mask_rice/'
-    #_run_path = '/Users/qingsun/GGCM/run_dssat/'
-    #dirs = ['/Users/qingsun/Desktop/']
+    _mask_path = '/Users/qingsun/GGCM/mask_rice/'
+    _run_path = '/Users/qingsun/GGCM/run_dssat/'
 
     dirs = read_dirs(_run_path)
-    print 'Total pathes is %s' % (len(dirs))
+    print 'Total dirs are %s' % (len(dirs))
+    print dirs
+    os.exit()
+
 
     if len(dirs) == 1595:
         plantpk = 'PK1'
@@ -234,7 +197,7 @@ if __name__ == '__main__':
     elif len(dirs) == 695:
         plantpk = 'PK3'
     else:
-        print 'File dir numbers is not same as mask'
+        print 'File dir numbers is not same as mask. Total dir are %s' % (len(dirs))
         os.exit()
     
     _lat_lon, _gene_region, plantday = rice_gene_mask(_mask_path, plantpk)
