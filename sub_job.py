@@ -67,7 +67,7 @@ if "__main__" == __name__:
     run_begin_year = 2020
     run_end_year   = 2099
 
-    _climate_data = 'MIROC'
+    _climate_data = 'NORESM'
     for _plantpk in _plantpk_list:
         for i in xrange(len(_co2_list)):
         #for _rcps in _rcps_list:

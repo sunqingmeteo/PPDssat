@@ -160,7 +160,7 @@ def write_nc(dssat_out_nc, _mask_path = './', _file_path='./', output_file_name 
 
     # Global Attributes
     f_nc.description = 'Qing Sun, NUIST, created in %s' % datetime.datetime.now()
-    f_nc.source = 'AgMIP climate datasets, PPDSSAT results, https://github.com/sunqingmeteo/PPDssat'
+    f_nc.source = 'AgMIP climate datasets, PPDSSAT results, https://github.com/sunqingmeteo/PPDssat. From source %s' % (_file_path)
 
     # Variable Attributes
     times.units = "year"
@@ -177,18 +177,15 @@ def write_nc(dssat_out_nc, _mask_path = './', _file_path='./', output_file_name 
 if __name__ == '__main__':
 
     ##### For NUIST server
-    #_mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
-    #_run_path = '/nuist/u/home/yangzaiqiang/scratch/Results/AGCFSR_RCP2.6_1980_2010_PK1_old/'
+    _mask_path = '/nuist/u/home/yangzaiqiang/work/mask_rice/'
+    _run_path = '/nuist/u/home/yangzaiqiang/scratch/Results/AGCFSR_RCP2.6_1980_2010_PK1_old/'
 
     ##### For local run
-    _mask_path = '/Users/qingsun/GGCM/mask_rice/'
-    _run_path = '/Users/qingsun/GGCM/run_dssat/'
+    #_mask_path = '/Users/qingsun/GGCM/mask_rice/'
+    #_run_path = '/Users/qingsun/GGCM/run_dssat/'
 
     dirs = read_dirs(_run_path)
     print 'Total dirs are %s' % (len(dirs))
-    print dirs
-    os.exit()
-
 
     if len(dirs) == 1595:
         plantpk = 'PK1'
