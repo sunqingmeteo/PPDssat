@@ -67,7 +67,7 @@ if "__main__" == __name__:
     run_begin_year = 2020
     run_end_year   = 2099
 
-    _climate_data = 'NORESM'
+    _climate_data = 'GFDL'
     for _plantpk in _plantpk_list:
         for i in xrange(len(_co2_list)):
         #for _rcps in _rcps_list:
@@ -101,6 +101,10 @@ if "__main__" == __name__:
                           "plantpk = 'PK1'", 
                           "plantpk = '%s'" % (_plantpk),
                           )
+            string_switch('%s/PPDssat/run_mpi_dssat.py' % (_run_path), 
+                          "_dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm/Build/bin/'", 
+                          "_dssat_exe_path = '/nuist/u/home/yangzaiqiang/dssat-csm-old/Build/bin/'",
+                          )
 
             # Create job script and submit it.
             job_content = ['#!/bin/bash\n',
@@ -119,7 +123,5 @@ if "__main__" == __name__:
 
             submit_job = subprocess.call('qsub %s/job_PPDSSAT.sh' % (_run_path), shell=True)
             print "Submitted PPDSSAT job of %s" % (_run_path)
-
-
 
 

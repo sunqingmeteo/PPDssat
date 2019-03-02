@@ -153,9 +153,16 @@ if "__main__" == __name__:
     _clm_model_name = _climate_path.split('/')[7]
     _rcp_name = str.upper(_climate_path.split('/')[8])
     if CO2_RCP == 'FIX':
-        output_file_name = 'PPDSSAT_OUT_%s_%s_withoutco2_%s_%s_%s.nc' % (_clm_model_name, _rcp_name, run_begin_year, run_end_year, plantpk)
+        output_file_name = 'PPDSSAT_OUT_%s_%s_withoutco2_%s_%s_%s_old.nc' % (_clm_model_name, _rcp_name, run_begin_year, run_end_year, plantpk)
     else:
-        output_file_name = 'PPDSSAT_OUT_%s_%s_co2_%s_%s_%s.nc' % (_clm_model_name, _rcp_name, run_begin_year, run_end_year, plantpk)
+        output_file_name = 'PPDSSAT_OUT_%s_%s_co2_%s_%s_%s_old.nc' % (_clm_model_name, _rcp_name, run_begin_year, run_end_year, plantpk)
     
     write_nc(_out_dssat, _mask_path, _run_path, output_file_name)
+
+    if os.path.isfile(_run_path+'/'+output_file_name): 
+        _cp_result = subprocess.call('cp %s/%s /nuist/u/home/yangzaiqiang/scratch/RESULTS_OLD/.' % (_run_path, output_file_name), shell=True)
+    else:
+        print 'Attention! File %s is not exist!!' % (output_file_name)
+
+
 
