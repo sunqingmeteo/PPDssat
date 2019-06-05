@@ -13,7 +13,7 @@ Nanjing University of Information Science & Technology (NUIST)
 This a python I/O for writing and reading files of DSSAT input and output.
 
 This is an open source code.
-Only for research use.
+Only for research and study use.
 Detail procedure will be written later on.
 
 
