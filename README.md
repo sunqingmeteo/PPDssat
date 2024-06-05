@@ -6,15 +6,15 @@ Qing/NUIST 04/26/2018
 
 Author: Qing Sun
 
-College of Applied Meteorology,
+Chinese Academy of Meteorological Sciences (CAMS),
 
-Nanjing University of Information Science & Technology (NUIST)
+Chinese Meteorological Administration (CMA)
 
 This a python I/O for writing and reading files of DSSAT input and output.
 
 This is an open source code.
 Only for research and study use.
-Detail procedure will be written later on.
+Detail procedures will be written later on.
 
 
 Add detail 2019.02.20:
@@ -80,7 +80,6 @@ Update: 2019.02.25
 2. Deploy in NUIST server and fix small bugs.
 
 3. Add post process in main code.
-
 
 
 
